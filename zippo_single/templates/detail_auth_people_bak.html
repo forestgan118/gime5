@@ -1,0 +1,529 @@
+{% extends 'base.html' %}
+
+{% block titile %}
+Detail
+{% endblock %}
+{% load staticfiles %}
+{% block custom_css %}
+<style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            
+            table {
+                /*设置相邻单元格的边框间的距离*/
+                border-spacing: 0;
+                /*表格设置合并边框模型*/
+                border-collapse: collapse;
+                text-align: center;
+            }
+            /*关键设置 tbody出现滚动条*/
+            table tbody {
+                display: block;
+                height: 400px;
+                overflow-y: scroll;
+            }
+            
+            table thead,
+            tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+            /*关键设置：滚动条默认宽度是16px 将thead的宽度减16px*/
+            table thead {
+                width: calc( 100% - 1em)
+            }
+            
+            
+            table thead th {
+                background: #ccc;
+            }
+            
+</style>
+{% endblock %}
+{% block content %}
+			<aside class="sidebar-menu fixed">
+				<div class="sidebar-inner scrollable-sidebar">
+					<div class="main-menu">
+						<ul class="accordion">
+							<li class="menu-header">
+								Main Menu
+							</li>
+							<li class="bg-palette1 active">
+								<a href="{% url 'index' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-home fa-lg"></i></span>
+										<span class="text m-left-sm">数据总览</span>
+									</span>
+									<span class="menu-content-hover block">
+										Home
+									</span>
+								</a>
+							</li>
+
+							<li class="openable bg-palette3">
+								<a href="{% url 'org:device_detail' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-list fa-lg"></i></span>
+										<span class="text m-left-sm">详细数据</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										Form
+									</span>
+								</a>
+                                <ul class="submenu bg-palette4">
+									<li><a href="#"><span class="submenu-label">Form Element</span></a></li>
+									<!--li><a href="#"><span class="submenu-label">销售详细数据</span></a></li>
+									<!--li><a href="form_wizard.html"><span class="submenu-label">Form Wizard</span></a></li>
+									<li><a href="dropzone.html"><span class="submenu-label">Dropzone</span></a></li-->
+								</ul>
+							</li>
+                            <li class="bg-palette2">
+								<a href="{% url 'device:status' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">设备状态</span>
+									</span>
+									<span class="menu-content-hover block">
+										device status
+									</span>
+								</a>
+							</li>
+                            <li class="bg-palette4">
+								<a href="{% url 'device:device_resource' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">素材更新</span>
+									</span>
+									<span class="menu-content-hover block">
+										update resource
+									</span>
+								</a>
+							</li>
+                            <li class="bg-palette5">
+								<a href="{% url 'device:update_software' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">软件更新</span>
+									</span>
+									<span class="menu-content-hover block">
+										update software
+									</span>
+								</a>
+							</li>
+						</ul>
+					</div>	
+
+				</div><!-- sidebar-inner -->
+			</aside>
+			<div class="main-container">
+				<div class="padding-md">
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="page-title">
+								详细数据
+							</div>
+						</div>
+
+					</div>
+						<div class="row "  class="smart-widget-inner" >
+								
+								<form method="post" action="/org/detail/" name="region_form">
+									<div class="col-lg-2">
+									<select id="region" onchange="Get_Next_Place('region','Get_province')"  class="btn btn-default dropdown-toggle  btn-block text m-center-sm" name="region">
+											<option id="Not_data1" > 区&nbsp;&nbsp;域</option>
+											{% for region in all_region %}
+												<option id={{ region.id }} value={{ region.name }}>{{ region.name }}</option>
+											{% endfor %}
+										
+									</select>
+									</div>
+                                    <div class="col-lg-2">
+									<select id="province" onchange="Get_Next_Place('province','Get_city')"  class="btn btn-default dropdown-toggle  btn-block" name="province">
+											<option id="Not_data2" > 省&nbsp;&nbsp;份</option>
+											
+										
+									</select>
+									</div>
+									<div class="col-lg-2">
+									<select id="city" onchange="Get_Next_Place('city','Get_store')" class="btn btn-default dropdown-toggle  btn-block text m-center-sm" name="city">
+										<option id="Not_data3" >城&nbsp;&nbsp;市</option>
+									</select>
+									</div>
+									<div class="col-lg-2">
+									<select id="store" class="btn btn-default dropdown-toggle  btn-block text m-center-sm"  name="store">
+											<option id="Not_data4" >门&nbsp;&nbsp;店</option>
+									</select>
+									</div>
+                                    <div class="col-lg-2">
+                                    <select id="detai_select" name="detail_select" class="btn btn-default dropdown-toggle  btn-block text m-center-sm" >
+											<option value=1 selected="selected">销售详细数据</option>
+											<option value=2 >人流量详细数据</option>
+                                            <option value=3 >满意度详细数据</option>
+									</select>
+                                    </div>
+									<div class="col-lg-2">
+									
+                                    <div class="row"> 
+													
+														<div class="form-group" >  
+															<label for="" class="col-sm-2 control-label pull-center"  >From：</label>  
+																<div class="col-sm-4  " >  
+																	<input size="16" class="form-control dateFormat" data-date-format="yyyy-mm-dd" id="datetimepicker" type="text" value="" name="date" readonly >  
+																</div>
+                                                                <label for="" class="col-sm-2 control-label pull-center">To：</label>
+                                                                <div class="col-sm-4  " >  
+																	<input size="16" class="form-control dateFormat" data-date-format="yyyy-mm-dd" id="datetimepicker" type="text" value="" name="date2" readonly >  
+																</div>
+																<!--div class="col-sm-2  " > 
+																		<span class="glyphicon glyphicon-time" aria-hidden="true" style="font-size: 25px"></span>
+																		<!--span class="add-on"><i class="icon-remove"></i></span-->  
+																		
+																<!--/div-->  
+														 
+														</div>
+													</div>
+									</div>
+                                    
+                                    <div class="col-lg-3 pull-right">
+                                    <button type="submit" onclick="beforeSubmit()" class="btn btn-primary marginTB-xs pull-right" >提交</button>
+                                    </div>
+								{% csrf_token %}
+								</form>
+                                        
+                                    <div class="col-lg-6">
+                                    <div class="btn-group ">
+                                                <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle pull-left" id="export">
+                                                    一键生成数据表单
+                                                </button>
+                                            </div>
+                                
+                                    </div>
+
+							</div>
+					<table class="table table-striped" id="dataTable">
+						<thead>
+							<tr>
+                                <th  class="text-center">时间</th>
+								<th class="text-center">区域</th>
+                                <th class="text-center">省份</th>
+								<th class="text-center">城市</th>
+								<th class="text-center">门店</th>
+                                <th class="text-center">设备ID</th>
+								<th class="text-center">人流量</th>
+                                <th class="text-center">有效客户数</th>
+                                <th class="text-center">累计人流量</th>
+                                <th class="text-center">累计有效客户数</th>
+                                <!--th class="text-center">累计人流量</th>
+                                <th class="text-center">累计有效客户数</th-->
+							</tr>
+						</thead>
+						<tbody >
+                            {% load pagination_tags %} 
+                            {% autopaginate data_list 50 as data_list_page %}
+                            
+                                {% for data in data_list_page %}
+                                <tr>
+                                    <td>{{ data.time }}</td>
+                                    <td>{{ data.region }}</td>
+                                    <td>{{ data.province }}</td>
+                                    <td>{{ data.city }}</td>
+                                    <td>{{ data.store }}</td>
+                                    <td>{{ data.device_id }}</td>
+                                    <td>{{ data.wifi_3m_num }}</td>
+                                    <td>{{ data.wifi_1m_num }}</td>
+                                    <td>{{ duration_3 }}</td>
+                                    <td>{{ duration_1 }}</td>
+                                    <!--td>{{ data.wifi_3m_num_total }}</td>
+                                    <td>{{ data.wifi_1m_num_total }}</td-->
+                                    
+                                </tr>
+								{% endfor %}
+                                
+                             {% paginate %}
+						</tbody>
+					</table>
+                    
+				</div><!-- ./padding-md -->
+			</div><!-- /main-container -->
+			{% endblock %}
+{% block custom2_js %}
+<!--script src="{% static '/js/jquery-1.11.1.min.js' %} "></script-->
+<script type="text/javascript" src= " {% static 'datetimepicker/sample in bootstrap v3/bootstrap/js/bootstrap.min.js' %} "></script>  
+<script type="text/javascript" src= " {% static 'datetimepicker/js/bootstrap-datetimepicker.js' %} "></script>  
+<script type="text/javascript" src= " {% static 'datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js' %} "></script>
+<script type="text/javascript" src="{% static 'tableExport/libs/FileSaver/FileSaver.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'tableExport/tableExport.js' %}"></script>
+
+
+<script type="text/javascript">
+
+$("#export").click(function(){
+    $("#dataTable").tableExport({
+        type:"excel",
+        escape:"false",
+
+    });
+});
+</script> 
+
+
+<script language="JavaScript">   
+var today=new Date();  
+var submitTime=today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();   
+$("#date").attr('value',submitTime);  
+</script> 
+<script type="text/javascript">
+//$(function () {  
+    $('.dateFormat').datetimepicker({  
+        format: 'yyyy-mm-dd',  
+        language:'zh-CN-me',
+        weekStart:0, //一周从哪一天开始，0（星期日）到6（星期六），默认为0
+        //startDate:"2018-01-01",
+        //endDate:"2018-12-31",
+        //daysOfWeekDisabled:'0,6',//选定周六日不可选
+        autoclose:1, //选择完时间后自动关闭时间选择器
+        startView:'month', //打开时间选择器后首先显示的视图，0：半小时，1：一小时，2：日期，3：月份，4：年份
+        minView:'month', //能提供最精确的时间视图，0：精确到半小时，1：精确到1小时，2：精确到日期，3：精确到月份，4：精确到年份
+        maxView:'decade', //与上面相反
+        viewSelect:'decade', //与minView一样，支持'decade','year','month','day','hour'
+        pickerPosition:'bottom-right', //设置时间选择器打开的位置
+        todayBtn:'linked',//如此值为true或linked，则在日期时间选择器底部显示“Today”，按钮用于选择当前日期
+                        //如果为“true”，按钮仅将视图转到当前日期，如果市“linked”，则当前日期被选中
+        todayHighlight:true, //"true",高亮当前日期
+        keyboardNavigation:true, //是否可以通过键盘修改当前日期
+        //forceParse:true, //当选择器关闭时，是否强制解析输入框中的值
+        //minuteStep:0, //此数值用于构建小时视图，每个minuteStep都会生成一组预设时间（分钟）用于选择
+
+        //showMeridian:false //小时视图分为上午和下午视图  
+    }) ; 
+
+//$('#datetimepicker').datetimepicker('remove'); //移除日期选择器，同时移除已经绑定的event/内部绑定的对象和html元素
+$('#datetimepicker').datetimepicker('show'); //显示时间选择器
+$('#datetimepicker').datetimepicker('hide'); //隐藏时间选择器
+//$('#datetimepicker').datetimepicker('update'); //使用当前输入框的值更新日期选择器
+//$('#datetimepicker').datetimepicker('setStartDate','2018-01-01');//设定起始日期
+//$('#datetimepicker').datetimepicker('setEndDate','2018-12-31');//设置结束时间
+//$('#datetimepicker').datetimepicker('setDaysOfWeekDisabled',[0,6]);//设置不可选择的星期几
+//时间选择器显示出发事件
+//$('#datetimepicker').datetimepicker().on('show',function(ev){  
+    //alert('时间选择器显示');
+//});
+//时间选择器隐藏触发事件
+//$('#datetimepicker').datetimepicker().on('hide',function(ev){  
+    //alert('时间选择器隐藏');
+//});
+//当前日期被改变时触发
+//$('#datetimepicker').datetimepicker().on('changeDate',function(ev){  
+   // alert('日期被改变');
+//});
+//当十年视图上的年视图view被改变时触发
+//$('#datetimepicker').datetimepicker().on('changeYear',function(ev){  
+    //alert('日期被改变');
+//});
+//当年视图上的月视图view被改变时触发
+//$('#datetimepicker').datetimepicker().on('changeMonth',function(ev){  
+    //alert('月份被改变');
+//});
+
+//});
+//当用户选择日期超出startDate或endDate时，或通过setDate或setUTCDate设置超出范围时触发
+</script>
+<script type="text/javascript">
+        var Region_select,Province_select,City_select,Store_select
+        //用来获得option元素中selected属性为true的元素的id
+        function Get_Selected_Id(region){
+            var pro = document.getElementById(region);
+            var Selected_Id = pro.options[pro.selectedIndex].id;
+            console.log("Get_Selected_Id:"+Selected_Id);  //测试使用
+            return Selected_Id;         //返回selected属性为true的元素的id
+        }
+ 
+        //执行相应的动作，调用相关数据请求函数
+        function Get_Next_Place(This_Place_ID,Action){
+            var Selected_Id = Get_Selected_Id(This_Place_ID);   //Selected_Id用来记录当前被选中的省或市的ID
+            if(Action=='Get_province')                            //从而可以在下一个级联中加载相应的市或县
+                Get_Province_Data(Selected_Id);
+            else if(Action=='Get_city')                            //从而可以在下一个级联中加载相应的市或县
+                Get_City_Data(Selected_Id);
+            else if(Action=='Get_store')
+                Get_Store_Data(Selected_Id);
+        }
+        
+         //向服务器请求城市列表数据并调用添加城市函数
+        function Get_Province_Data(Region_Selected_Id){    //这里的Selected_Id应该是被选中的省份的ID
+            console.log("Region_Selected_Id:"+Region_Selected_Id);   //测试使用
+            
+            if(Region_Selected_Id == 'Not_data1'){    //如果选择了"Province"选项，则表示重置当前City和Country的选项内容，不会向服务器请求数据
+                $("#province").empty();
+                $("#province").append("<option id='Not_data2'>省&nbsp;&nbsp;份</option>");
+                $("#city").empty();
+                $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+                $("#store").empty();
+                $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            }else{      //否则就会向服务器请求数据
+                $.getJSON('/org/GetProvinceData/',{'region':Region_Selected_Id},function(province_list){
+                    console.log(province_list);      //测试使用
+                    Add_province(province_list);    //调用添加城市选项函数
+                });
+            }
+        }
+ 
+        //在当前页面添加城市选项
+        function Add_province(province_list){
+            $("#province").empty();
+            $("#province").append("<option id='Not_data2'>省&nbsp;&nbsp;份</option>");
+            $("#city").empty();
+            $("#city").append("<option id='Not_data2'>城&nbsp;&nbsp;市</option>");
+            $("#store").empty();
+            $("#store").append("<option id='Not_data3'>门&nbsp;&nbsp;店</option>");
+            //上面的两次清空与两次添加是为了保持级联的一致性
+            for(var index in province_list){     //获得城市列表中的城市索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text =  "<option"+" id='"+province_list[index]+"'>"+province_list[index]+"</option>";
+                $("#province").append(text);
+                console.log(text);  //用来观察生成的text数据
+            }
+        }
+ 
+        //向服务器请求城市列表数据并调用添加城市函数
+        function Get_City_Data(Province_Selected_Id){    //这里的Selected_Id应该是被选中的省份的ID
+            console.log("Region_Selected_Id:"+Province_Selected_Id);   //测试使用
+            
+            if(Province_Selected_Id == 'Not_data2'){    //如果选择了"Province"选项，则表示重置当前City和Country的选项内容，不会向服务器请求数据
+                $("#city").empty();
+                $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+                $("#store").empty();
+                $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            }else{      //否则就会向服务器请求数据
+                $.getJSON('/org/GetCityData/',{'province':Province_Selected_Id},function(City_list){
+                    console.log(City_list);      //测试使用
+                    Add_city(City_list);    //调用添加城市选项函数
+                });
+            }
+        }
+ 
+        //在当前页面添加城市选项
+        function Add_city(City_list){
+            $("#city").empty();
+            $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+            $("#store").empty();
+            $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            //上面的两次清空与两次添加是为了保持级联的一致性
+            for(var index in City_list){     //获得城市列表中的城市索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text =  "<option"+" id='"+City_list[index]+"'>"+City_list[index]+"</option>";
+                $("#city").append(text);
+                console.log(text);  //用来观察生成的text数据
+            }
+        }
+ 
+        //向服务器请求门店列表数据并调用添加门店函数
+       function Get_Store_Data(City_Selected_Id){
+           console.log("City_Selected_Id:"+City_Selected_Id);   //测试使用
+           
+           if(City_Selected_Id == 'Not_data3'){     //如果选择了City选项，则表示重置当前Country的选项内容，不会向服务器请求数据
+               $("#store").empty();
+               $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+               //上面的清空与添加是为了保持级联的一致性
+           }else{   //否则就会向服务器请求数据
+               var Region_Selected_ID = Get_Selected_Id("region");  //获得被选中省的ID，从而方便从服务器中加载数据
+               $.getJSON('/org/GetStoreData/',{'City':City_Selected_Id},function(Store_list){
+//                   console.log(Country_list);    //测试使用
+                    Add_store(Store_list);   //调用添加门店选项函数
+                   //Region_select=Region_Selected_ID;
+                   //console.log("REGION=",Region_select)
+                   //Province_select=Province_Selected_ID;
+                   //console.log("PROVINCE=",Province_select)
+                   //City_select=City_Selected_Id;
+                   //console.log("CITY=",City_select)
+                   
+        
+               });
+           }
+
+        }
+ 
+        //在当前页面添加门店选项
+        function Add_store(Store_list){
+            $("#store").empty();
+            $("#store").append("<option id='Not_data3'>门&nbsp;&nbsp;店</option>");
+            //上面的清空与添加是为了保持级联的一致性
+            for(var index in Store_list){     //获得县区列表中的县区索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text = "<option"+" id='"+Store_list[index]+"'>"+Store_list[index]+"</option>";
+                $("#store").append(text);
+                console.log(Store_list[index]);  //用来观察生成的text数据
+                Store_select=Store_list[index];
+            }
+        }
+        
+         
+		 /*
+		$(function() {
+            if (localStorage.getItem('region')) {
+                $("#region option").eq(localStorage.getItem('region')).prop('selected', true);
+            }
+ 
+            $("#region").on('change', function() {
+                localStorage.setItem('region', $('option:selected', this).index());
+				console.log(localStorage.setItem('region', $('option:selected', this).index()));
+            });
+
+            if (localStorage.getItem('city')) {
+                $("#city option").eq(localStorage.getItem('city')).prop('selected', true);
+            }
+ 
+            $("#city").on('change', function() {
+                localStorage.setItem('city', $('option:selected', this).index());
+				console.log(localStorage.setItem('city', $('option:selected', this).index()));
+            });
+
+            if (localStorage.getItem('store')) {
+                $("#store option").eq(localStorage.getItem('store')).prop('selected', true);
+            }
+ 
+            $("#store").on('change', function() {
+                localStorage.setItem('store', $('option:selected', this).index());
+            });
+
+            if (localStorage.getItem('day_select')) {
+                $("#day_select option").eq(localStorage.getItem('day_select')).prop('selected', true);
+            }
+ 
+            $("#day_select").on('change', function() {
+                localStorage.setItem('day_select', $('option:selected', this).index());
+            });
+        });
+		 */
+		 /*
+		var Region_select=document.getElementById("region_csv").value;
+        var City_select=document.getElementById("city_csv").value;
+        var Store_select=document.getElementById("store_csv").value;
+        var day_select= document.getElementById("day_select").value;
+        function upload_data(){
+        jsPost('/org/csv/', {
+                'Region_id': Region_select,
+                'City_id': City_select,
+                'Store_id':Store_select,
+                'day_select':day_select
+                });
+        }
+        var jsPost = function(action, values) {
+        var id = Math.random();
+        document.write('<form id="post' + id + '" name="post'+ id +'" action="' + action + '" method="post">');
+        for (var key in values) {
+        document.write('<input type="hidden" name="' + key + '" value="' + values[key] + '" />');
+        console.log(values[key]);
+            }
+        document.write('</form>');  
+        document.getElementById('post' + id).submit();
+        }
+        */
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,7 @@
+<uwsgi>
+    <socket>47.99.151.116:8000</socket>
+    <chdir>/home/env/zippo/zippo_single </chdir>
+    <module>wsgi</module>
+    <processes>4</processes>
+    <daemonize>uwsgi.log</daemonize>
+</uwsgi>

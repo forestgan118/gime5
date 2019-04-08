@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+    <p>编号：<input type="text" name="bianhao"></p>
+    <p>姓名：<input type="text" name="name"></p>
+    <input type="submit" value="提交">
+</form>
+{% endblock %}

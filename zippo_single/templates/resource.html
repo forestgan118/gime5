@@ -1,0 +1,901 @@
+{% extends 'base.html' %}
+
+{% block titile %}
+resource
+{% endblock %}
+{% load staticfiles %}
+
+{% block content %}
+			<aside class="sidebar-menu fixed">
+				<div class="sidebar-inner scrollable-sidebar">
+					<div class="main-menu">
+						<ul class="accordion">
+							<li class="menu-header">
+								Main Menu
+							</li>
+							<li class="bg-palette1 active">
+								<a href="{% url 'index' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-home fa-lg"></i></span>
+										<span class="text m-left-sm">数据总览</span>
+									</span>
+									<span class="menu-content-hover block">
+										Home
+									</span>
+								</a>
+							</li>
+							<!--li class="bg-palette2">
+								<a href="landing/landing.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-desktop fa-lg"></i></span>
+										<span class="text m-left-sm">Landing</span>
+									</span>
+									<span class="menu-content-hover block">
+										Landing
+									</span>
+								</a>
+							</li-->
+							<li class="bg-palette3">
+								<a href="{% url 'org:device_detail' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-list fa-lg"></i></span>
+										<span class="text m-left-sm">详细数据</span>
+										<!--span class="submenu-icon"></span-->
+									</span>
+									<span class="menu-content-hover block">
+										Detail
+									</span>
+								</a>
+								<!--ul class="submenu bg-palette4">
+									<!--li><a href="form_element.html"><span class="submenu-label">Form Element</span></a></li-->
+									<!--li><a href="{% url 'org:org_list' %}"><span class="submenu-label">销售数据录入</span></a></li>
+									<!--li><a href="form_wizard.html"><span class="submenu-label">Form Wizard</span></a></li>
+									<li><a href="dropzone.html"><span class="submenu-label">Dropzone</span></a></li-->
+								<!--/ul-->
+							</li>
+                            <li class="bg-palette2">
+								<a href="{% url 'device:status' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">设备状态</span>
+									</span>
+									<span class="menu-content-hover block">
+										device status
+									</span>
+								</a>
+							</li>
+                            <li class="bg-palette4">
+								<a href="{% url 'device:device_resource' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">素材更新</span>
+									</span>
+									<span class="menu-content-hover block">
+										update resource
+									</span>
+								</a>
+							</li>
+                            <li class="bg-palette5">
+								<a href="{% url 'device:update_software' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">软件更新</span>
+									</span>
+									<span class="menu-content-hover block">
+										update software
+									</span>
+								</a>
+							</li>
+							<!--li class="openable bg-palette4">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">详细数据</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										UI Kits
+									</span>
+								</a>
+								<ul class="submenu">
+									<!--li><a href="ui_element.html"><span class="submenu-label">Basic Elements</span></a></li>
+									<li><a href="button.html"><span class="submenu-label">Button & Icons</span></a></li-->
+									<!--li class="openable">
+										<a href="#">
+											<small class="badge badge-success badge-square bounceIn animation-delay2 m-left-xs pull-right">2</small>
+											<span class="submenu-label">详细数据</span>
+										</a>
+										<ul class="submenu third-level">
+											<li><a href="static_table.html"><span class="submenu-label">销售详细数据</span></a></li>
+											<li><a href="datatable.html"><span class="submenu-label">人流量详细数据</span></a></li>
+											<li class="active"><a href="satisfaction.html"><span class="submenu-label">客户满意度数据</span></a></li>
+										</ul>
+									</li>
+									<!--li><a href="widget.html"><span class="submenu-label">Widget</span></a></li>
+									<li><a href="tab.html"><span class="submenu-label">Tab</span></a></li>
+									<li><a href="calendar.html"><span class="submenu-label">Calendar</span></a></li>
+									<li><a href="treeview.html"><span class="submenu-label">Treeview</span></a></li>
+									<li><a href="nestable_list.html"><span class="submenu-label">Nestable Lists</span></a></li-->
+								<!--/ul>
+							</li-->
+							<!--li class="bg-palette1">
+								<a href="inbox.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-envelope fa-lg"></i></span>
+										<span class="text m-left-sm">Inboxs</span>
+										<small class="badge badge-danger badge-square bounceIn animation-delay5 m-left-xs">5</small>
+									</span>
+									<span class="menu-content-hover block">
+										Inboxs
+									</span>
+								</a>
+							</li-->
+							<!--li class="bg-palette2">
+								<a href="timeline.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-clock-o fa-lg"></i></span>
+										<span class="text m-left-sm">Timeline</span>
+										<small class="badge badge-warning badge-square bounceIn animation-delay6 m-left-xs pull-right">7</small>
+									</span>
+									<span class="menu-content-hover block">
+										Timeline
+									</span>
+								</a>
+							</li-->
+							<!--li class="menu-header">
+								Others
+							</li-->
+							<!--li class="openable bg-palette3">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-gift fa-lg"></i></span>
+										<span class="text m-left-sm">Extra Pages</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										Pages
+									</span>
+								</a>
+								<ul class="submenu">
+									<li><a href="signin.html"><span class="submenu-label">Sign in</span></a></li>
+									<li><a href="signup.html"><span class="submenu-label">Sign Up</span></a></li>
+									<li><a href="lockscreen.html"><span class="submenu-label">Lock Screen</span></a></li>
+									<li><a href="profile.html"><span class="submenu-label">Profile</span></a></li>
+									<li><a href="gallery.html"><span class="submenu-label">Gallery</span></a></li>
+									<li><a href="blog.html"><span class="submenu-label">Blog</span></a></li>
+									<li><a href="single_post.html"><span class="submenu-label">Single Post</span></a></li>
+									<li><a href="pricing.html"><span class="submenu-label">Pricing</span></a></li>
+									<li><a href="invoice.html"><span class="submenu-label">Invoice</span></a></li>
+									<li><a href="error404.html"><span class="submenu-label">Error404</span></a></li>
+									<li><a href="blank.html"><span class="submenu-label">Blank</span></a></li>
+								</ul>
+							</li-->
+							<!--li class="openable bg-palette4">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-list fa-lg"></i></span>
+										<span class="text m-left-sm">Menu Level</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										Menu
+									</span>
+								</a>
+								<ul class="submenu">
+									<li class="openable">
+										<a href="signin.html">
+											<span class="submenu-label">menu 2.1</span>
+											<small class="badge badge-success badge-square bounceIn animation-delay2 m-left-xs pull-right">3</small>
+										</a>
+										<ul class="submenu third-level">
+											<li><a href="#"><span class="submenu-label">menu 3.1</span></a></li>
+											<li><a href="#"><span class="submenu-label">menu 3.2</span></a></li>
+											<li class="openable">
+												<a href="#">
+													<span class="submenu-label">menu 3.3</span>
+													<small class="badge badge-danger badge-square bounceIn animation-delay2 m-left-xs pull-right">2</small>
+												</a>
+												<ul class="submenu fourth-level">
+													<li><a href="#"><span class="submenu-label">menu 4.1</span></a></li>
+													<li><a href="#"><span class="submenu-label">menu 4.2</span></a></li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+									<li><a href="#"><span class="submenu-label">menu 2.2</span></a></li>
+								</ul>
+							</li-->
+						</ul>
+					</div>	
+					<!--div class="sidebar-fix-bottom clearfix">
+						<div class="user-dropdown dropup pull-left">
+							<a href="#" class="dropdwon-toggle font-18" data-toggle="dropdown"><i class="ion-person-add"></i>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="inbox.html">
+										Inbox
+										<span class="badge badge-danger bounceIn animation-delay2 pull-right">1</span>
+									</a>
+								</li>			  
+								<li>
+									<a href="#">
+										Notification
+										<span class="badge badge-purple bounceIn animation-delay3 pull-right">2</span>
+									</a>
+								</li>			  
+								<li>
+									<a href="#" class="sidebarRight-toggle">
+										Message
+										<span class="badge badge-success bounceIn animation-delay4 pull-right">7</span>
+									</a>
+								</li>			  	  
+								<li class="divider"></li>
+								<li>
+									<a href="#">Setting</a>
+								</li>			  	  
+							</ul>
+						</div>
+						<a href="lockscreen.html" class="pull-right font-18"><i class="ion-log-out"></i></a>
+					</div-->
+				</div><!-- sidebar-inner -->
+			</aside>
+			<div class="main-container">
+				<div class="padding-md">
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="page-title">
+								<h4>素材更新</h4>
+							</div>
+							<!--div class="page-sub-header">
+								Welcome Back, John Doe , <i class="fa fa-map-marker text-danger"></i> London
+							</div-->
+						</div>
+
+					</div>
+
+							<div class="row "  class="smart-widget-inner" >
+								
+								<form method="post" action="/device/resource/" name="region_form" enctype="multipart/form-data">
+									<div class="col-lg-2">
+									<select id="region" onchange="Get_Next_Place('region','Get_province')"  class="btn btn-default dropdown-toggle  btn-block" name="region">
+											<option id="Not_data1" > 区&nbsp;&nbsp;域</option>
+											{% for region in all_region %}
+												<option id={{ region.id }} value={{ region.name }}>{{ region.name }}</option>
+											{% endfor %}
+										
+									</select>
+									</div>
+                                    <div class="col-lg-2">
+									<select id="province" onchange="Get_Next_Place('province','Get_city')"  class="btn btn-default dropdown-toggle  btn-block" name="province">
+											<option id="Not_data2" > 省&nbsp;&nbsp;份</option>
+											
+										
+									</select>
+									</div>
+									<div class="col-lg-2">
+									<select id="city" onchange="Get_Next_Place('city','Get_store')" class="btn btn-default dropdown-toggle  btn-block" name="city">
+										<option id="Not_data3" >城&nbsp;&nbsp;市</option>
+									</select>
+									</div>
+									<div class="col-lg-2">
+									<select id="store" class="btn btn-default dropdown-toggle  btn-block"  name="store">
+											<option id="Not_data4" >门&nbsp;&nbsp;店</option>
+									</select>
+									</div>
+
+                                    <div class="col-lg-4">
+									</div>
+                                    
+                                    
+                                    
+                                    <!--div class="form-group">
+										<label class="col-lg-2 control-label">更新选项</label>
+										<div class="col-lg-10">
+											<div class="checkbox inline-block">
+												<div class="custom-checkbox">
+													<input type="checkbox" id="inlineCheckbox1" class="checkbox-grey" value=1 name="checkbox_list">
+													<label for="inlineCheckbox1"></label>
+												</div>
+												<div class="inline-block vertical-top">
+													第1个视频
+												</div>
+											</div>
+											<div class="checkbox inline-block">
+												<div class="custom-checkbox">
+													<input type="checkbox" id="inlineCheckbox2" class="checkbox-grey" value=2 name="checkbox_list">
+													<label for="inlineCheckbox2"></label>
+												</div>
+												<div class="inline-block vertical-top">
+													第2个视频
+												</div>
+											</div>
+											<div class="checkbox inline-block">
+												<div class="custom-checkbox">
+													<input type="checkbox" id="inlineCheckbox3" class="checkbox-grey" value=3 name="checkbox_list">
+													<label for="inlineCheckbox3"></label>
+												</div>
+												<div class="inline-block vertical-top">
+													第3个视频
+												</div>
+											</div>
+											<div class="checkbox inline-block">
+												<div class="custom-checkbox">
+													<input type="checkbox" id="inlineCheckbox4" class="checkbox-grey" value=4 name="checkbox_list">
+													<label for="inlineCheckbox4"></label>
+												</div>
+												<div class="inline-block vertical-top">
+													第4个视频
+												</div>
+											</div>
+											<div class="checkbox inline-block">
+												<div class="custom-checkbox">
+													<input type="checkbox" id="inlineCheckbox5" class="checkbox-grey" value=5 name="checkbox_list">
+													<label for="inlineCheckbox5"></label>
+												</div>
+												<div class="inline-block vertical-top">
+													第5个视频
+												</div>
+											</div>
+											<div class="checkbox inline-block">
+												<div class="custom-checkbox">
+													<input type="checkbox" id="inlineCheckbox6" class="checkbox-grey" value=6 name="checkbox_list">
+													<label for="inlineCheckbox6"></label>
+												</div>
+												<div class="inline-block vertical-top">
+													灯带配置文件
+												</div>
+											</div>
+                                            <div class="checkbox inline-block">
+												<div class="custom-checkbox">
+													<input type="checkbox" id="inlineCheckbox7" class="checkbox-grey" value=7 name="checkbox_list">
+													<label for="inlineCheckbox7"></label>
+												</div>
+												<div class="inline-block vertical-top">
+													开机界面
+												</div>
+											</div>
+                                            <div class="checkbox inline-block">
+												<div class="custom-checkbox">
+													<input type="checkbox" id="inlineCheckbox8" class="checkbox-grey" value=8 name="checkbox_list">
+													<label for="inlineCheckbox8"></label>
+												</div>
+												<div class="inline-block vertical-top">
+													升级界面
+												</div>
+											</div>
+										</div><!-- /.col -->
+                                        
+									<!--/div--><!-- /form-group -->
+                                     <div class="form-group">
+										<label class="col-lg-12 control-label">升级指定设备</label>
+                                            <div class="col-lg-10">
+                                    
+                                            <div class="radio inline-block">
+												<div class="custom-radio m-right-xs">
+													<input type="radio" id="inlineRadio1" name="inlineRadio" value=21>
+													<label for="inlineRadio1"></label>
+												</div>
+												<div class="inline-block vertical-top">第1个视频</div>
+											</div>
+											<div class="radio inline-block">
+												<div class="custom-radio m-right-xs">
+													<input type="radio" id="inlineRadio2" name="inlineRadio" value=22>
+													<label for="inlineRadio2"></label>
+												</div>
+												<div class="inline-block vertical-top">第2个视频</div>
+											</div>
+                                            <div class="radio inline-block">
+												<div class="custom-radio m-right-xs">
+													<input type="radio" id="inlineRadio3" name="inlineRadio" value=23>
+													<label for="inlineRadio3"></label>
+												</div>
+												<div class="inline-block vertical-top">第3个视频</div>
+											</div>
+											<div class="radio inline-block">
+												<div class="custom-radio m-right-xs">
+													<input type="radio" id="inlineRadio4" name="inlineRadio" value=24>
+													<label for="inlineRadio4"></label>
+												</div>
+												<div class="inline-block vertical-top">第4个视频</div>
+											</div>
+                                            <div class="radio inline-block">
+												<div class="custom-radio m-right-xs">
+													<input type="radio" id="inlineRadio5" name="inlineRadio" value=25>
+													<label for="inlineRadio5"></label>
+												</div>
+												<div class="inline-block vertical-top">第5个视频</div>
+											</div>
+											<div class="radio inline-block">
+												<div class="custom-radio m-right-xs">
+													<input type="radio" id="inlineRadio0" name="inlineRadio" value=28>
+													<label for="inlineRadio0"></label>
+												</div>
+												<div class="inline-block vertical-top">灯带配置文件</div>
+											</div>
+                                            <div class="radio inline-block">
+												<div class="custom-radio m-right-xs">
+													<input type="radio" id="inlineRadio6" name="inlineRadio" value=26>
+													<label for="inlineRadio6"></label>
+												</div>
+												<div class="inline-block vertical-top">开机界面</div>
+											</div>
+											<div class="radio inline-block">
+												<div class="custom-radio m-right-xs">
+													<input type="radio" id="inlineRadio7" name="inlineRadio" value=27>
+													<label for="inlineRadio7"></label>
+												</div>
+												<div class="inline-block vertical-top">升级界面</div>
+											</div>
+                                            </div>
+										</div><!-- /.col -->
+                                    <div class="col-sm-12">
+											<input type="file" class="col-sm-12" name="updata_resource" >
+										</div><!-- /.col -->
+									<!--div class="row "  class="smart-widget-inner" >
+                                        <div class="col-lg-6">
+                                            <button type="button" class="btn btn-primary marginTB-xs pull-left"><i class="fa fa-save m-right-xs"></i>一键生成报表</button>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <button type="submit" onclick="beforeSubmit()" class="btn btn-primary marginTB-xs pull-right" >提交</button>
+                                        </div>
+                                    </div-->
+                                    <div class="col-lg-12">
+                                    <button type="submit" onclick="beforeSubmit()" class="btn btn-primary marginTB-xs pull-right" >素材上传</button>
+                                    </div>
+								{% csrf_token %}
+								</form>
+                                {% for updata in updata_list %}
+                                <div class="col-sm-12">
+                                <input type="text" id="msg" value={{updata}} style="display:none;">
+                                   
+                                    <a href="{% url 'device:device_resource' %}" class="btn btn-primary marginTB-xs pull-right"  onclick="send()">确认升级</a>
+                                </div>  
+                            </div>
+                            {%endfor%}
+                            
+                    <!--table class="table table-striped" id="sourceTable">
+						<thead>
+                        <div class="row">
+							<tr>
+                            <div class="col-sm-1">
+								<th>区域</th>
+                            </div>
+                            <div class="col-sm-1">
+								<th>城市</th>
+                            </div>
+                            <div class="col-sm-1">
+								<th>门店</th>
+                            </div>
+                                {% for updata in update_list %}
+                                <div class="col-sm-1">
+								<th>第{{updata}}个更新文档</th>
+                                
+                                </div>
+                                {% endfor %}
+							</tr>
+                           </div>
+						</thead>
+						<tbody>
+                            {% load pagination_tags %} 
+                            {% autopaginate data_list 20 as data_list_page %}
+                            
+                                
+                                <form method="post" action="/device/resource_update/" name="resource_update_form" enctype="multipart/form-data">
+								<div class="form-group">
+                                {% for data in data_list_page %}
+                                    <tr>
+								    <div class="col-sm-1">
+                                    <td>{{ data.regionname }}</td>
+									<input name="update_region" value={{data.regionname}} style="display:none;">
+                                    </div>
+                                    <div class="col-sm-1">
+                                    <td>{{ data.cityname }}</td>
+									<input name="update_city" value={{data.cityname}}  style="display:none;" >
+                                    </div>
+                                    
+                                    <div class="col-sm-1">
+                                    <!--form method="post" action="/device/resource_update/" name="resource_update_form" enctype="multipart/form-data"-->
+                                    <!--div class="form-group"-->
+                                    <!--td >{{ data.name }}</td>
+                                    <input name="update_store" value={{data.name}}  style="display:none;">
+                                    </div>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                    </table>
+										<div class="col-sm-12">
+											<input type="file" class="col-sm-12" name="updata_resource" >
+										</div><!-- /.col -->
+                                        <!--input name="update_list" value={{updata}} type="hidden" style="display:none;">
+                                    
+                                    
+									</div><!-- /form-group -->
+                                    
+                                    <!--div class="col-lg-12">
+                                    <button type="submit" class="btn btn-primary marginTB-xs pull-left" >资源上传</button>
+                                    </div>
+                                
+								
+                             {% csrf_token %}
+								</form>
+                             {% paginate %}
+						
+					
+                             {% for updata in updata_list %}
+							</div>
+                              <label  >确认要升级第{{updata}}个文件</label>
+                                <input  id="msg" value={{updata}} type="hidden">
+                                   
+                                    <input type="button" value="确认升级" onclick="send()" />
+                                     
+                            </div>
+                            
+                            {%endfor%}
+                            <!--/div>
+                              <label  >升级结果</label>
+                               <span id="result"  ></span>
+                                     
+                            </div-->
+					<!--table class="table table-striped" id="sourceTable">
+                                    <thead>
+                                        <tr>
+                                            <th>区域</th>
+                                            <th>城市</th>
+                                            <th>门店</th>
+                                            <th>第1个视频</th>
+                                            <th>第2个视频</th>
+                                            <th>第3个视频</th>
+                                            <th>第4个视频</th>
+                                            <th>第5个视频</th>
+                                            <th>灯光配置文件</th>
+                                            <th>开机图片</th>
+                                            <th>升级图片</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for data in data_list %}
+                                            <tr>
+                                                <td>{{ data.regionname }}</td>
+                                                <td>{{ data.cityname }}</td>
+                                                <td>{{ data.name }}</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+             
+                                            </tr>
+                                            {% endfor %}
+                                         
+                                      
+                                    </tbody>
+					</table-->
+					<!--div class="smart-widget">
+						<div class="smart-widget-inner">
+							
+							<div class="smart-widget-body">
+                      
+							</div>
+
+						</div!-->
+					
+					<!--/div><!-- ./smart-widget -->
+                    </div>
+				</div><!-- ./padding-md -->
+			</div><!-- /main-container -->
+			{% endblock %}
+{% block custom2_js %}
+<!--script src="{% static '/js/jquery-1.11.1.min.js' %} "></script-->
+<!-- Simplify -->
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"" type="text/javascript"></script>
+
+ <script type="text/javascript">
+            
+            
+            var updatecmd=[{{ updatecmd|safe }}];
+                //console.log('updatecmd:'+updatecmd);
+                var device_id=[{{ device_id|safe }}];
+                //console.log('device_id:'+device_id);
+        
+var hostname1=[{{ hostname|safe }}];
+                 //console.log('hostname:'+hostname1);
+                var userName1=[{{ username|safe }}];
+                //console.log('username:'+userName1);
+                var password1=[{{ password|safe }}];
+                //console.log('password:'+password1);
+                var keepAlive1=[{{ keepAlive|safe }}];
+                //console.log('keepAlive:'+keepAlive1);
+                var port1=[{{ port|safe }}];
+                //console.log('port:'+port1);
+       var hostname= String(hostname1);
+                     var port=parseInt(port1);
+                     var clientId = 'client-mao2080';
+                    var  timeout = 5;
+                    var keepAlive = parseInt(keepAlive1);
+            var cleanSession = false;
+            var ssl = false;
+            var  userName = String(userName1);
+            var  password = String(password1);
+            var topic = '/zippo/'+String(device_id)+'/update';
+            //console.log('topic:'+topic);
+        client = new Paho.MQTT.Client(hostname, port, clientId);
+        //建立客户端实例  
+        var options = {
+            invocationContext: {
+                host: hostname,
+                port: port,
+                path: client.path,
+                clientId: clientId
+            },
+            timeout: timeout,
+            keepAliveInterval: keepAlive,
+            cleanSession: cleanSession,
+            useSSL: ssl,
+            userName: userName,  
+            password: password,  
+            onSuccess: onConnect,
+            onFailure: function (e) {
+                console.log(e);
+                s = "{time:" + new Date().Format("yyyy-MM-dd hh:mm:ss") + ", onFailure()}";
+                console.log(s);
+            }
+        };
+        client.connect(options);
+        //连接服务器并注册连接成功处理事件  
+        function onConnect() {
+            console.log("onConnected");
+            s = "{time:" + new Date().Format("yyyy-MM-dd hh:mm:ss") + ", onConnected()}";
+            console.log(s);
+            client.subscribe("/zippo/"+device_id+"/resource");
+            client.subscribe("/zippo/"+device_id+"/update");
+        }
+
+        client.onConnectionLost = onConnectionLost;
+
+        //注册连接断开处理事件  
+        client.onMessageArrived = onMessageArrived;
+
+        //注册消息接收处理事件  
+        function onConnectionLost(responseObject) {
+            console.log(responseObject);
+            s = "{time:" + new Date().Format("yyyy-MM-dd hh:mm:ss") + ", onConnectionLost()}";
+            console.log(s);
+            if (responseObject.errorCode !== 0) {
+                console.log("onConnectionLost:" + responseObject.errorMessage);
+                console.log("连接已断开");
+            }
+        }
+
+        function onMessageArrived(message) {
+            s = "{time:" + new Date().Format("yyyy-MM-dd hh:mm:ss") + ", onMessageArrived()}";
+            console.log(s);
+            console.log("收到消息:" + message.payloadString);
+            var content=message.payloadString
+            //document.getElementById('result').innerHTML = content;
+            if (content=="movie1 have download" || content=="movie2 have download" || content=="movie3 have download" || content=="movie4 have download" || content=="movie5 have download" || content=="init.jpg have download" || content=="update_pic.jpg have download" || content=="config_led get")
+            {
+            str="升级成功!"
+            }
+            else
+            {
+            str="升级尚未成功!"
+            }
+            //document.getElementById('result').innerHTML = content;
+            document.write("<h1>"+str+"</h1>");
+            str=""
+          
+        }
+
+        function send() {
+            var s = document.getElementById("msg").value;
+            console.log('s:'+s);
+            if (s) {
+                //s = "{time:" + new Date().Format("yyyy-MM-dd hh:mm:ss") + ", content:" + (s) + ", from: web console}";
+                message = new Paho.MQTT.Message(s);
+                message.destinationName = topic;
+                client.send(message);
+                document.getElementById("msg").value = "";
+            }
+        }
+
+        var count = 0;
+
+        function start() {
+            window.tester = window.setInterval(function () {
+                if (client.isConnected) {
+                    var s = "{time:" + new Date().Format("yyyy-MM-dd hh:mm:ss") + ", content:" + (count++) +
+                        ", from: web console}";
+                    message = new Paho.MQTT.Message(s);
+                    message.destinationName = topic;
+                    client.send(message);
+                }
+            }, 1000);
+        }
+
+        function stop() {
+            window.clearInterval(window.tester);
+        }
+
+        Date.prototype.Format = function (fmt) { //author: meizz 
+            var o = {
+                "M+": this.getMonth() + 1, //月份 
+                "d+": this.getDate(), //日 
+                "h+": this.getHours(), //小时 
+                "m+": this.getMinutes(), //分 
+                "s+": this.getSeconds(), //秒 
+                "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+                "S": this.getMilliseconds() //毫秒 
+            };
+            if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[
+                    k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+
+/*
+	function WebSocketTest()
+	{
+		client = new Paho.MQTT.Client("ws://120.78.188.123", Number(8083), "web1");//建立客户端实例  
+			
+			client.onConnectionLost = onConnectionLost;//注册连接断开处理事件  
+			client.onMessageArrived = onMessageArrived;//注册消息接收处理事件
+			client.connect({onSuccess:onConnect});//连接服务器并注册连接成功处理事件  
+			function onConnect() {  
+				console.log("onConnected");  
+				client.subscribe("test");//订阅主题
+				message = new Paho.MQTT.Message("Hello");
+				message.destinationName = "World";
+				client.send(message);
+			}  
+  
+			function onConnectionLost(responseObject) {  
+				if (responseObject.errorCode !== 0) {  
+					console.log("onConnectionLost:"+responseObject.errorMessage);  
+					console.log("连接已断开");  
+				 }  
+			}  
+			function onMessageArrived(message) {  
+			  console.log("收到消息:"+message.payloadString);  
+			}  
+}*/
+		</script>
+
+<script type="text/javascript">
+        var Region_select,Province_select,City_select,Store_select
+        //用来获得option元素中selected属性为true的元素的id
+        function Get_Selected_Id(region){
+            var pro = document.getElementById(region);
+            var Selected_Id = pro.options[pro.selectedIndex].id;
+            console.log("Get_Selected_Id:"+Selected_Id);  //测试使用
+            return Selected_Id;         //返回selected属性为true的元素的id
+        }
+ 
+        //执行相应的动作，调用相关数据请求函数
+        function Get_Next_Place(This_Place_ID,Action){
+            var Selected_Id = Get_Selected_Id(This_Place_ID);   //Selected_Id用来记录当前被选中的省或市的ID
+            if(Action=='Get_province')                            //从而可以在下一个级联中加载相应的市或县
+                Get_Province_Data(Selected_Id);
+            else if(Action=='Get_city')                            //从而可以在下一个级联中加载相应的市或县
+                Get_City_Data(Selected_Id);
+            else if(Action=='Get_store')
+                Get_Store_Data(Selected_Id);
+        }
+        
+         //向服务器请求城市列表数据并调用添加城市函数
+        function Get_Province_Data(Region_Selected_Id){    //这里的Selected_Id应该是被选中的省份的ID
+            console.log("Region_Selected_Id:"+Region_Selected_Id);   //测试使用
+            
+            if(Region_Selected_Id == 'Not_data1'){    //如果选择了"Province"选项，则表示重置当前City和Country的选项内容，不会向服务器请求数据
+                $("#province").empty();
+                $("#province").append("<option id='Not_data2'>省&nbsp;&nbsp;份</option>");
+                $("#city").empty();
+                $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+                $("#store").empty();
+                $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            }else{      //否则就会向服务器请求数据
+                $.getJSON('/org/GetProvinceData/',{'region':Region_Selected_Id},function(province_list){
+                    console.log(province_list);      //测试使用
+                    Add_province(province_list);    //调用添加城市选项函数
+                });
+            }
+        }
+ 
+        //在当前页面添加城市选项
+        function Add_province(province_list){
+            $("#province").empty();
+            $("#province").append("<option id='Not_data2'>省&nbsp;&nbsp;份</option>");
+            $("#city").empty();
+            $("#city").append("<option id='Not_data2'>城&nbsp;&nbsp;市</option>");
+            $("#store").empty();
+            $("#store").append("<option id='Not_data3'>门&nbsp;&nbsp;店</option>");
+            //上面的两次清空与两次添加是为了保持级联的一致性
+            for(var index in province_list){     //获得城市列表中的城市索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text =  "<option"+" id='"+province_list[index]+"'>"+province_list[index]+"</option>";
+                $("#province").append(text);
+                console.log(text);  //用来观察生成的text数据
+            }
+        }
+ 
+        //向服务器请求城市列表数据并调用添加城市函数
+        function Get_City_Data(Province_Selected_Id){    //这里的Selected_Id应该是被选中的省份的ID
+            console.log("Region_Selected_Id:"+Province_Selected_Id);   //测试使用
+            
+            if(Province_Selected_Id == 'Not_data2'){    //如果选择了"Province"选项，则表示重置当前City和Country的选项内容，不会向服务器请求数据
+                $("#city").empty();
+                $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+                $("#store").empty();
+                $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            }else{      //否则就会向服务器请求数据
+                $.getJSON('/org/GetCityData/',{'province':Province_Selected_Id},function(City_list){
+                    console.log(City_list);      //测试使用
+                    Add_city(City_list);    //调用添加城市选项函数
+                });
+            }
+        }
+ 
+        //在当前页面添加城市选项
+        function Add_city(City_list){
+            $("#city").empty();
+            $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+            $("#store").empty();
+            $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            //上面的两次清空与两次添加是为了保持级联的一致性
+            for(var index in City_list){     //获得城市列表中的城市索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text =  "<option"+" id='"+City_list[index]+"'>"+City_list[index]+"</option>";
+                $("#city").append(text);
+                console.log(text);  //用来观察生成的text数据
+            }
+        }
+ 
+        //向服务器请求门店列表数据并调用添加门店函数
+       function Get_Store_Data(City_Selected_Id){
+           console.log("City_Selected_Id:"+City_Selected_Id);   //测试使用
+           
+           if(City_Selected_Id == 'Not_data3'){     //如果选择了City选项，则表示重置当前Country的选项内容，不会向服务器请求数据
+               $("#store").empty();
+               $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+               //上面的清空与添加是为了保持级联的一致性
+           }else{   //否则就会向服务器请求数据
+               var Region_Selected_ID = Get_Selected_Id("region");  //获得被选中省的ID，从而方便从服务器中加载数据
+               $.getJSON('/org/GetStoreData/',{'City':City_Selected_Id},function(Store_list){
+//                   console.log(Country_list);    //测试使用
+                    Add_store(Store_list);   //调用添加门店选项函数
+                   //Region_select=Region_Selected_ID;
+                   //console.log("REGION=",Region_select)
+                   //Province_select=Province_Selected_ID;
+                   //console.log("PROVINCE=",Province_select)
+                   //City_select=City_Selected_Id;
+                   //console.log("CITY=",City_select)
+                   
+        
+               });
+           }
+
+        }
+ 
+        //在当前页面添加门店选项
+        function Add_store(Store_list){
+            $("#store").empty();
+            $("#store").append("<option id='Not_data3'>门&nbsp;&nbsp;店</option>");
+            //上面的清空与添加是为了保持级联的一致性
+            for(var index in Store_list){     //获得县区列表中的县区索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text = "<option"+" id='"+Store_list[index]+"'>"+Store_list[index]+"</option>";
+                $("#store").append(text);
+                console.log(Store_list[index]);  //用来观察生成的text数据
+                Store_select=Store_list[index];
+            }
+        }
+        
+         
+</script>
+{% endblock %}

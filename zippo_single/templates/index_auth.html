@@ -1,0 +1,1809 @@
+{% extends 'base.html' %}
+
+{% block titile %}
+Home
+{% endblock %}
+{% load staticfiles %}
+
+{% block content %}
+			<aside class="sidebar-menu fixed">
+				<div class="sidebar-inner scrollable-sidebar">
+					<div class="main-menu">
+						<ul class="accordion">
+							<li class="menu-header">
+								Main Menu
+							</li>
+							<li class="bg-palette1 active">
+								<a href="{% url 'index' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-home fa-lg"></i></span>
+										<span class="text m-left-sm">数据总览</span>
+									</span>
+									<span class="menu-content-hover block">
+										Home
+									</span>
+								</a>
+							</li>
+							<!--li class="bg-palette2">
+								<a href="landing/landing.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-desktop fa-lg"></i></span>
+										<span class="text m-left-sm">Landing</span>
+									</span>
+									<span class="menu-content-hover block">
+										Landing
+									</span>
+								</a>
+							</li-->
+							<li class="bg-palette3">
+								<a href="{% url 'org:device_detail' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-list fa-lg"></i></span>
+										<span class="text m-left-sm">详细数据</span>
+										<!--span class="submenu-icon"></span-->
+									</span>
+									<span class="menu-content-hover block">
+										Detail
+									</span>
+								</a>
+								<!--ul class="submenu bg-palette4">
+									<!--li><a href="form_element.html"><span class="submenu-label">Form Element</span></a></li-->
+									<!--li><a href="{% url 'org:org_list' %}"><span class="submenu-label">销售数据录入</span></a></li>
+									<!--li><a href="form_wizard.html"><span class="submenu-label">Form Wizard</span></a></li>
+									<li><a href="dropzone.html"><span class="submenu-label">Dropzone</span></a></li-->
+								<!--/ul-->
+							</li>
+							<!--li class="openable bg-palette4">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">详细数据</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										UI Kits
+									</span>
+								</a>
+								<ul class="submenu">
+									<!--li><a href="ui_element.html"><span class="submenu-label">Basic Elements</span></a></li>
+									<li><a href="button.html"><span class="submenu-label">Button & Icons</span></a></li-->
+									<!--li class="openable">
+										<a href="#">
+											<small class="badge badge-success badge-square bounceIn animation-delay2 m-left-xs pull-right">2</small>
+											<span class="submenu-label">详细数据</span>
+										</a>
+										<ul class="submenu third-level">
+											<li><a href="static_table.html"><span class="submenu-label">销售详细数据</span></a></li>
+											<li><a href="datatable.html"><span class="submenu-label">人流量详细数据</span></a></li>
+											<li class="active"><a href="satisfaction.html"><span class="submenu-label">客户满意度数据</span></a></li>
+										</ul>
+									</li>
+									<!--li><a href="widget.html"><span class="submenu-label">Widget</span></a></li>
+									<li><a href="tab.html"><span class="submenu-label">Tab</span></a></li>
+									<li><a href="calendar.html"><span class="submenu-label">Calendar</span></a></li>
+									<li><a href="treeview.html"><span class="submenu-label">Treeview</span></a></li>
+									<li><a href="nestable_list.html"><span class="submenu-label">Nestable Lists</span></a></li-->
+								<!--/ul>
+							</li-->
+							<!--li class="bg-palette1">
+								<a href="inbox.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-envelope fa-lg"></i></span>
+										<span class="text m-left-sm">Inboxs</span>
+										<small class="badge badge-danger badge-square bounceIn animation-delay5 m-left-xs">5</small>
+									</span>
+									<span class="menu-content-hover block">
+										Inboxs
+									</span>
+								</a>
+							</li-->
+							<!--li class="bg-palette2">
+								<a href="timeline.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-clock-o fa-lg"></i></span>
+										<span class="text m-left-sm">Timeline</span>
+										<small class="badge badge-warning badge-square bounceIn animation-delay6 m-left-xs pull-right">7</small>
+									</span>
+									<span class="menu-content-hover block">
+										Timeline
+									</span>
+								</a>
+							</li-->
+							<!--li class="menu-header">
+								Others
+							</li-->
+							<!--li class="openable bg-palette3">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-gift fa-lg"></i></span>
+										<span class="text m-left-sm">Extra Pages</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										Pages
+									</span>
+								</a>
+								<ul class="submenu">
+									<li><a href="signin.html"><span class="submenu-label">Sign in</span></a></li>
+									<li><a href="signup.html"><span class="submenu-label">Sign Up</span></a></li>
+									<li><a href="lockscreen.html"><span class="submenu-label">Lock Screen</span></a></li>
+									<li><a href="profile.html"><span class="submenu-label">Profile</span></a></li>
+									<li><a href="gallery.html"><span class="submenu-label">Gallery</span></a></li>
+									<li><a href="blog.html"><span class="submenu-label">Blog</span></a></li>
+									<li><a href="single_post.html"><span class="submenu-label">Single Post</span></a></li>
+									<li><a href="pricing.html"><span class="submenu-label">Pricing</span></a></li>
+									<li><a href="invoice.html"><span class="submenu-label">Invoice</span></a></li>
+									<li><a href="error404.html"><span class="submenu-label">Error404</span></a></li>
+									<li><a href="blank.html"><span class="submenu-label">Blank</span></a></li>
+								</ul>
+							</li-->
+							<!--li class="openable bg-palette4">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-list fa-lg"></i></span>
+										<span class="text m-left-sm">Menu Level</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										Menu
+									</span>
+								</a>
+								<ul class="submenu">
+									<li class="openable">
+										<a href="signin.html">
+											<span class="submenu-label">menu 2.1</span>
+											<small class="badge badge-success badge-square bounceIn animation-delay2 m-left-xs pull-right">3</small>
+										</a>
+										<ul class="submenu third-level">
+											<li><a href="#"><span class="submenu-label">menu 3.1</span></a></li>
+											<li><a href="#"><span class="submenu-label">menu 3.2</span></a></li>
+											<li class="openable">
+												<a href="#">
+													<span class="submenu-label">menu 3.3</span>
+													<small class="badge badge-danger badge-square bounceIn animation-delay2 m-left-xs pull-right">2</small>
+												</a>
+												<ul class="submenu fourth-level">
+													<li><a href="#"><span class="submenu-label">menu 4.1</span></a></li>
+													<li><a href="#"><span class="submenu-label">menu 4.2</span></a></li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+									<li><a href="#"><span class="submenu-label">menu 2.2</span></a></li>
+								</ul>
+							</li-->
+						</ul>
+					</div>	
+					<!--div class="sidebar-fix-bottom clearfix">
+						<div class="user-dropdown dropup pull-left">
+							<a href="#" class="dropdwon-toggle font-18" data-toggle="dropdown"><i class="ion-person-add"></i>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="inbox.html">
+										Inbox
+										<span class="badge badge-danger bounceIn animation-delay2 pull-right">1</span>
+									</a>
+								</li>			  
+								<li>
+									<a href="#">
+										Notification
+										<span class="badge badge-purple bounceIn animation-delay3 pull-right">2</span>
+									</a>
+								</li>			  
+								<li>
+									<a href="#" class="sidebarRight-toggle">
+										Message
+										<span class="badge badge-success bounceIn animation-delay4 pull-right">7</span>
+									</a>
+								</li>			  	  
+								<li class="divider"></li>
+								<li>
+									<a href="#">Setting</a>
+								</li>			  	  
+							</ul>
+						</div>
+						<a href="lockscreen.html" class="pull-right font-18"><i class="ion-log-out"></i></a>
+					</div-->
+				</div><!-- sidebar-inner -->
+			</aside>
+			<div class="main-container">
+				<div class="padding-md">
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="page-title">
+								<h4>数据总览</h4>
+							</div>
+							<!--div class="page-sub-header">
+								Welcome Back, John Doe , <i class="fa fa-map-marker text-danger"></i> London
+							</div-->
+						</div>
+						<!--div class="col-sm-6 text-right text-left-sm p-top-sm">
+							<div class="btn-group">
+							  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							    Select Project <span class="caret"></span>
+							  </button>
+							  <ul class="dropdown-menu pull-right" role="menu">
+							    <li><a href="#">Project1</a></li>
+							    <li><a href="#">Project2</a></li>
+							    <li><a href="#">Project3</a></li>
+							    <li class="divider"></li>
+							    <li><a href="#">Setting</a></li>
+							  </ul>
+							</div>
+
+							<a class="btn btn-default"><i class="fa fa-cog"></i></a>
+						</div-->
+					</div>
+					
+					<!--div class="row "  class="smart-widget-inner"-->
+						<!--div class="smart-widget-header">
+							Button Dropdown
+							<span class="smart-widget-option">
+								<span class="refresh-icon-animated">
+									<i class="fa fa-circle-o-notch fa-spin"></i>
+								</span>
+	                            <a href="#" class="widget-toggle-hidden-option">
+	                                <i class="fa fa-cog"></i>
+	                            </a>
+	                            <a href="#" class="widget-collapse-option" data-toggle="collapse">
+	                                <i class="fa fa-chevron-up"></i>
+	                            </a>
+	                            <a href="#" class="widget-refresh-option">
+	                                <i class="fa fa-refresh"></i>
+	                            </a>
+	                            <a href="#" class="widget-remove-option">
+	                                <i class="fa fa-times"></i>
+	                            </a>
+	                        </span>
+						</div-->
+						<!--div class="smart-widget-inner"-->
+							<!--div class="smart-widget-hidden-section">
+								<ul class="widget-color-list clearfix">
+									<li style="background-color:#20232b;" data-color="widget-dark"></li>
+									<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+									<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+									<li style="background-color:#2baab1;" data-color="widget-green"></li>
+									<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+									<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+									<li style="background-color:#e36159;" data-color="widget-red"></li>
+									<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+									<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+									<li style="background-color:#fff;" data-color="reset"></li>
+								</ul>
+							</div-->
+							<!--div class="row m-top-md" -->
+								<!--div class="btn-group marginTB-xs">
+							  		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							    		Action <span class="caret"></span>
+							  		</button>
+							  		<ul class="dropdown-menu" role="menu">
+									    <li><a href="#">Action</a></li>
+									    <li><a href="#">Another action</a></li>
+									    <li><a href="#">Something else here</a></li>
+									    <li class="divider"></li>
+									    <li><a href="#">Separated link</a></li>
+							  		</ul>
+								</div-->
+								<!--div class="btn-group marginTB-xs">
+							  		<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+							    		Action <span class="caret"></span>
+							  		</button>
+							  		<ul class="dropdown-menu" role="menu">
+									    <li><a href="#">Action</a></li>
+									    <li><a href="#">Another action</a></li>
+									    <li><a href="#">Something else here</a></li>
+									    <li class="divider"></li>
+									    <li><a href="#">Separated link</a></li>
+							  		</ul>
+								</div-->
+							<!--div class="col-lg-3">
+									<span class="btn btn-info dropdown-toggle  btn-block">区 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 域</span>
+							</div>
+							<div class="col-lg-3">
+									<span class="btn btn-info dropdown-toggle  btn-block">城 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 市</span>
+							</div>
+							<div class="col-lg-3">
+									<span class="btn btn-info dropdown-toggle  btn-block">门 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 店</span>
+							</div>
+							<div class="col-lg-3">
+									<span class="btn btn-info dropdown-toggle  btn-block">日 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 期</span>
+							</div>
+							</div-->
+							<div class="row "  class="smart-widget-inner" >
+								
+								<form method="post" action="/index/" name="region_form">
+									<div class="col-lg-2">
+									<select id="region" onchange="Get_Next_Place('region','Get_province')"  class="btn btn-default dropdown-toggle  btn-block" name="region">
+											<option id="Not_data1" > 区&nbsp;&nbsp;域</option>
+											{% for region in all_region %}
+												<option id={{ region.id }} value={{ region.name }}>{{ region.name }}</option>
+											{% endfor %}
+										
+									</select>
+									</div>
+                                    <div class="col-lg-2">
+									<select id="province" onchange="Get_Next_Place('province','Get_city')"  class="btn btn-default dropdown-toggle  btn-block" name="province">
+											<option id="Not_data2" > 省&nbsp;&nbsp;份</option>
+											
+										
+									</select>
+									</div>
+									<div class="col-lg-2">
+									<select id="city" onchange="Get_Next_Place('city','Get_store')" class="btn btn-default dropdown-toggle  btn-block" name="city">
+										<option id="Not_data3" >城&nbsp;&nbsp;市</option>
+									</select>
+									</div>
+									<div class="col-lg-2">
+									<select id="store" class="btn btn-default dropdown-toggle  btn-block"  name="store">
+											<option id="Not_data4" >门&nbsp;&nbsp;店</option>
+									</select>
+									</div>
+									<!--div class="col-lg-3">
+									<select id="day_select" name="day_select"  class="btn btn-default dropdown-toggle  btn-block" >
+											<option value=1 >当 &nbsp;&nbsp; 日(24H)</option>
+											<option value=7 selected="selected">最 &nbsp; 近 &nbsp; 7 &nbsp; 日</option>
+											<option value=30>当 &nbsp;&nbsp; 月</option>
+											<option value=90>季 &nbsp;&nbsp; 度</option>
+											<option value=365>年 &nbsp;&nbsp; 度)</option>
+									</select>
+									</div-->
+                                    <div class="col-lg-4">
+									<!--select id="day_select" name="day_select" onclick="setCookie('day_select',this.selectedIndex)" class="btn btn-default dropdown-toggle  btn-block" >
+											<option value=1 >当 &nbsp;&nbsp; 日(24H)</option>
+											<option value=7 selected="selected">最 &nbsp; 近 &nbsp; 7 &nbsp; 日</option>
+											<option value=30>当 &nbsp;&nbsp; 月</option>
+											<option value=90>季 &nbsp;&nbsp; 度</option>
+											<option value=365>年 &nbsp;&nbsp; 度)</option>
+									</select-->
+                                    <div class="row"> 
+													
+														<div class="form-group" >  
+															<label for="" class="col-sm-2 control-label pull-center"  >From：</label>  
+																<div class="col-sm-4  " >  
+																	<input size="16" class="form-control dateFormat" data-date-format="yyyy-mm-dd" id="datetimepicker" type="text" value="" name="date" readonly >  
+																</div>
+                                                                <label for="" class="col-sm-2 control-label pull-center">To：</label>
+                                                                <div class="col-sm-4  " >  
+																	<input size="16" class="form-control dateFormat" data-date-format="yyyy-mm-dd" id="datetimepicker" type="text" value="" name="date2" readonly >  
+																</div>
+																<!--div class="col-sm-2  " > 
+																		<span class="glyphicon glyphicon-time" aria-hidden="true" style="font-size: 25px"></span>
+																		<!--span class="add-on"><i class="icon-remove"></i></span-->  
+																		
+																<!--/div-->  
+														 
+														</div>
+													</div>
+									</div>
+                                    
+                                    
+                                    <div class="col-lg-12">
+                                    <button type="submit" onclick="beforeSubmit()" class="btn btn-primary marginTB-xs pull-right" >提交</button>
+                                    </div>
+									<!--div class="row "  class="smart-widget-inner" >
+                                        <div class="col-lg-6">
+                                            <button type="button" class="btn btn-primary marginTB-xs pull-left"><i class="fa fa-save m-right-xs"></i>一键生成报表</button>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <button type="submit" onclick="beforeSubmit()" class="btn btn-primary marginTB-xs pull-right" >提交</button>
+                                        </div>
+                                    </div-->
+								{% csrf_token %}
+								</form>
+                                    <!--div class="col-lg-6">
+                                    <button type="submit" onclick="upload_data()" class="btn btn-primary marginTB-xs pull-left" >一键生成报表</button>
+                                    <!--input type="button"  id="Button2" value="一键生成报表" onclick="upload_data()"/-->
+                                    <!--a href="upload_data" style="color: #FFFFFF">一键生成报表</a-->
+                                    <!--/div-->
+
+								<!--div class="btn-group  " -->
+							 		<!--span  class="btn btn-info dropdown-toggle btn-block" data-toggle="dropdown">
+									{% ifequal select_region NULL %}
+							    		<span>区 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 域</span><span class="caret"></span>
+									
+									{% else %}
+										{% for region in select_region %}
+											
+											<span>{{ region.name }}</span>
+											
+										{% endfor %}
+									{% endifequal %}
+							  		</span-->
+							  		<!--ul class="dropdown-menu dropdown-menu-left" role="menu"  style="min-width:100%;">
+									    <!--li><a href="#">华 &nbsp;&nbsp; 东</a></li>
+									    <li><a href="#">华 &nbsp;&nbsp; 南</a></li>
+									    <li><a href="#">华 &nbsp;&nbsp; 北</a></li>
+									    <li class="divider"></li>
+									    <li><a href="#">全 &nbsp;&nbsp; 国</a></li>
+										{% for region in all_region %}
+												      <li><a href="?region={{ region.id }}"  span class="{% ifequal region.id|stringformat:'i' region_id %}active2{% endifequal %}">{{region.name}}</a></li>
+										{% endfor %}
+										
+							  		</ul!-->
+								<!--/div-->
+							</div>
+							<!--div class="col-lg-3">
+								<!--div class="btn-group "-->
+							  		<!--button type="button" class="btn btn-info dropdown-toggle  btn-block" data-toggle="dropdown">
+									{% ifequal select_city NULL %}
+							    		<span>城 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 市 <span class="caret"></span>
+									
+									{% else %}
+										{% for city in select_city %}
+											<span>{{ city.name }}</span>
+										{% endfor %}
+									{% endifequal %}
+							  		</button-->
+							  		<!--ul class="dropdown-menu dropdown-menu-left" role="menu"  style="min-width:100%;"-->
+							    		<!--li><a href="#">上 &nbsp;&nbsp; 海</a></li>
+									    <li><a href="#">北 &nbsp;&nbsp; 京</a></li>
+									    <li><a href="#">深 &nbsp;&nbsp; 圳</a></li>
+									    <li class="divider"></li>
+									    <li><a href="#">全 &nbsp;&nbsp; 国</a></li-->
+										<!--a href="?ct="><span class="active">全部</span></a-->
+										 	<!--div>
+												
+													{% for city in all_city %}
+												      <li><a href="?city={{ city.id }}"><span class="{% ifequal city.id|stringformat:'i' city_id %}{% endifequal %}">{{city.name}}</a></li>
+												    {% endfor %}
+											</div-->
+							  		<!--/ul-->
+								<!--/div-->
+							<!--/div-->
+							<!--div class="col-lg-3">
+								<!--div class="btn-group  "-->
+							  		<!--button type="button" class="btn btn-info dropdown-toggle btn-block" data-toggle="dropdown">
+										{% ifequal select_store NULL %}
+											<span >门&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 店<span class="caret"></span>
+										{% else %}
+											{% for store in select_store %}
+												<span>{{ store.name }}</span>
+											{% endfor %}
+										{% endifequal %}
+
+							  		</button-->
+							  		<!--ul class="dropdown-menu dropdown-menu-left" role="menu"  style="min-width:100%;">
+							    		<!--li><a href="#">黄埔来福士</a></li>
+									    <li><a href="#">xxxxx</a></li>
+									    <li><a href="#">xxxxx</a></li>
+									    <li class="divider"></li>
+									    <li><a href="#">全 &nbsp;&nbsp; 部</a></li>
+										
+										{% for store in all_store %}
+											<li><a href="#"> <span>{{store.name}}</a></li>
+											<li><a href="?store={{ store.id }}"><span class="{% ifequal store.id|stringformat:'i' stroe.id %}active2{% endifequal %}">{{store.name}}</a></li>
+										{% endfor %}
+							  		</ul>
+								</div>
+							</div>
+							<div class="col-lg-3">
+								<div class="  ">
+							  		<button type="button" class="btn btn-info dropdown-toggle btn-block" data-toggle="dropdown">
+							    		日 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 期 <span class="caret"></span>
+							  		</button>
+							  		<ul class="dropdown-menu" role="menu">
+									    <li list-group-item-info><a href="?day=1">当 &nbsp;&nbsp; 日(24H)</a></li>
+									    <li list-group-item-info><a href="?day=7">最 &nbsp; 近 &nbsp; 7 &nbsp; 日</a></li>
+									    <li list-group-item-info><a href="?day=30">当 &nbsp;&nbsp; 月</a></li>
+										<li list-group-item-info><a href="?day=90">季 &nbsp;&nbsp; 度</a></li>
+										<li list-group-item-info><a href="?day=365">年 &nbsp;&nbsp; 度</a></li>
+									    <li class="divider"></li>
+									    <li><a href="#">Separated link</a></li>
+							  		</ul>
+								</div>
+							</div>
+							<!--/div-->
+						<!--/div--><!-- ./smart-widget-inner -->
+					<!--/div><!-- ./smart-widget -->
+					<!--button type="submit" onclick="beforeSubmit()" class="btn btn-primary marginTB-xs pull-right" value={{region_select.selected}}>提交</button-->
+					
+					
+					<div class="smart-widget">
+						<div class="smart-widget-inner">
+							<!--ul class="nav nav-tabs tab-style1">
+								<li class="active" >
+							  		<a href="#style1Tab1" data-toggle="tab">
+							  			<span class="icon-wrapper"><i class="fa fa-bar-chart-o"></i></span>
+							  			销售金额累计
+							  		</a>
+							  	</li>
+							  	<li >
+							  		<a href="#style1Tab2" data-toggle="tab">
+							  			<span class="icon-wrapper"><i class="fa fa-male"></i></span>
+							  			人流量累计
+							  		</a>
+							  	</li>
+							  	<li >
+							  		<a href="#style1Tab3" data-toggle="tab">
+							  			<span class="icon-wrapper"><i class="fa fa-thumbs-o-up"></i></span>
+							  			有效客户累计
+							  		</a>
+							  	</li>
+							  	<li >
+							  		<a href="#style1Tab4" data-toggle="tab">
+							  			<span class="icon-wrapper"><i class="fa  fa-fire"></i></span>
+							  			成交单数累计
+							  		</a>
+							  	</li>
+								<li >
+							  		<a href="#style1Tab5" data-toggle="tab">
+							  			<span class="icon-wrapper"><i class="fa fa-coffee"></i></span>
+							  			客户满意度累计
+							  		</a>
+							  	</li>
+							</ul-->
+							<div class="smart-widget-body">
+								<div class="tab-content">
+									<!--div class="tab-pane fade in active" id="style1Tab1">
+										<!--div class="block h4"><strong>销售金额</strong></div-->
+										<!--p class="m-top-sm">Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p-->
+										
+										<!--div class="col-lg-12" class="m-top-sm"-->
+											<div class="smart-widget widget-dark-blue">
+												<div class="smart-widget-header">
+													销售额(RMB)
+													<span class="smart-widget-option">
+														<span class="refresh-icon-animated">
+															<i class="fa fa-circle-o-notch fa-spin"></i>
+														</span>
+														<a href="#" class="widget-toggle-hidden-option">
+															<i class="fa fa-cog"></i>
+														</a>
+														<a href="#" class="widget-collapse-option" data-toggle="collapse">
+															<i class="fa fa-chevron-up"></i>
+														</a>
+														<a href="#" class="widget-refresh-option">
+															<i class="fa fa-refresh"></i>
+														</a>
+														<a href="#" class="widget-remove-option">
+															<i class="fa fa-times"></i>
+														</a>
+													</span>
+												</div>
+												<div class="smart-widget-inner">
+													<div class="smart-widget-hidden-section">
+														<ul class="widget-color-list clearfix">
+															<li style="background-color:#20232b;" data-color="widget-dark"></li>
+															<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+															<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+															<li style="background-color:#2baab1;" data-color="widget-green"></li>
+															<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+															<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+															<li style="background-color:#e36159;" data-color="widget-red"></li>
+															<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+															<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+															<li style="background-color:#fff;" data-color="reset"></li>
+														</ul>
+													</div>
+													<div class="smart-widget-body no-padding">
+														<div class="padding-md  box-body chart-responsive">
+															<div id="totalSalesChart" class="morris-chart"  style="width:auto;height:200px;"></div>
+														</div>
+
+														<div class="bg-grey">
+															<div class="row">
+																<div class="col-xs-12 text-center">
+																	<h3 class="m-top-sm">{{totalsalepro}}</h3>
+																	<small class="m-bottom-sm block">累计销售额</small>
+																</div>
+																<!--div class="col-xs-6 text-center">
+																	<h3 class="m-top-sm">{{newsalepro}}</h3>
+																	<small class="m-bottom-sm block">新增销售额</small>
+																</div-->
+																<!--div class="col-xs-4 text-center">
+																	<h3 class="m-top-sm">32</h3>
+																	<small class="m-bottom-sm block">销售增长量</small>
+																</div-->
+															</div>
+														</div>
+													</div>
+												</div><!-- ./smart-widget-inner -->
+											</div><!-- ./smart-widget -->
+											
+											
+										<!--/div><!-- ./col -->
+									<!--/div><!-- ./tab-pane -->
+									<!--div class="tab-pane fade active " id="style1Tab2">
+										<!--div class="block h4"><strong>Account Tab</strong></div-->
+										<!--p class="m-top-sm">Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p-->
+											<div class="smart-widget widget-dark-blue">
+												<div class="smart-widget-header">
+													人流量(人)  
+													<span class="smart-widget-option">
+														<span class="refresh-icon-animated">
+															<i class="fa fa-circle-o-notch fa-spin"></i>
+														</span>
+														<a href="#" class="widget-toggle-hidden-option">
+															<i class="fa fa-cog"></i>
+														</a>
+														<a href="#" class="widget-collapse-option" data-toggle="collapse">
+															<i class="fa fa-chevron-up"></i>
+														</a>
+														<a href="#" class="widget-refresh-option">
+															<i class="fa fa-refresh"></i>
+														</a>
+														<a href="#" class="widget-remove-option">
+															<i class="fa fa-times"></i>
+														</a>
+													</span>
+												</div>
+												<div class="smart-widget-inner">
+													<div class="smart-widget-hidden-section">
+														<ul class="widget-color-list clearfix">
+															<li style="background-color:#20232b;" data-color="widget-dark"></li>
+															<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+															<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+															<li style="background-color:#2baab1;" data-color="widget-green"></li>
+															<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+															<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+															<li style="background-color:#e36159;" data-color="widget-red"></li>
+															<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+															<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+															<li style="background-color:#fff;" data-color="reset"></li>
+														</ul>
+													</div>
+													<div class="smart-widget-body no-padding">
+														<div class="padding-md box-body chart-responsive">
+															<div id="peopleFlowChart" class="morris-chart" style="width:auto;height:200px;"></div>
+														</div>
+
+														<div class="bg-grey">
+															<div class="row">
+																<div class="col-xs-12 text-center">
+																	<h3 class="m-top-sm">{{people_3m}}</h3>
+																	<small class="m-bottom-sm block">累计人流量 <靠柜1~3米均视为人流量> <截至选定日期最后一天的累计人流量></small>
+																</div>
+																<!--div class="col-xs-6 text-center">
+																	<h3 class="m-top-sm">1024</h3>
+																	<small class="m-bottom-sm block">累计3米范围人流量</small>
+																</div-->
+																<!--div class="col-xs-4 text-center">
+																	<h3 class="m-top-sm">32</h3>
+																	<small class="m-bottom-sm block">销售增长量</small>
+																</div-->
+															</div>
+														</div>
+													</div>
+												</div><!-- ./smart-widget-inner -->
+											</div><!-- ./smart-widget -->
+									<!--/div><!-- ./tab-pane -->
+									<!--div class="tab-pane fade active" id="style1Tab3">
+										<!--div class="block h4"><strong>Payment Tab</strong></div-->
+										<!--p class="m-top-sm">Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p-->
+											<div class="smart-widget widget-dark-blue">
+												<div class="smart-widget-header">
+													有效客户数(个)  
+													<span class="smart-widget-option">
+														<span class="refresh-icon-animated">
+															<i class="fa fa-circle-o-notch fa-spin"></i>
+														</span>
+														<a href="#" class="widget-toggle-hidden-option">
+															<i class="fa fa-cog"></i>
+														</a>
+														<a href="#" class="widget-collapse-option" data-toggle="collapse">
+															<i class="fa fa-chevron-up"></i>
+														</a>
+														<a href="#" class="widget-refresh-option">
+															<i class="fa fa-refresh"></i>
+														</a>
+														<a href="#" class="widget-remove-option">
+															<i class="fa fa-times"></i>
+														</a>
+													</span>
+												</div>
+												<div class="smart-widget-inner">
+													<div class="smart-widget-hidden-section">
+														<ul class="widget-color-list clearfix">
+															<li style="background-color:#20232b;" data-color="widget-dark"></li>
+															<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+															<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+															<li style="background-color:#2baab1;" data-color="widget-green"></li>
+															<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+															<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+															<li style="background-color:#e36159;" data-color="widget-red"></li>
+															<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+															<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+															<li style="background-color:#fff;" data-color="reset"></li>
+														</ul>
+													</div>
+													<div class="smart-widget-body no-padding">
+														<div class="padding-md">
+															<div id="customChart" class="morris-chart" style="width:auto;height:200px;"></div>
+														</div>
+
+														<div class="bg-grey">
+															<div class="row">
+																<div class="col-xs-12 text-center">
+																	<h3 class="m-top-sm">{{people_1m}}</h3>
+																	<small class="m-bottom-sm block">累计有效客户数<1米范围内且停留超过10秒及以上人流量> <截至选定日期最后一天的累计有效客户数></small>
+																</div>
+																<!--div class="col-xs-6 text-center">
+																	<h3 class="m-top-sm">721</h3>
+																	<small class="m-bottom-sm block">新增销售额</small>
+																</div-->
+																<!--div class="col-xs-4 text-center">
+																	<h3 class="m-top-sm">32</h3>
+																	<small class="m-bottom-sm block">销售增长量</small>
+																</div-->
+															</div>
+														</div>
+													</div>
+												</div><!-- ./smart-widget-inner -->
+											</div><!-- ./smart-widget -->
+									<!--/div><!-- ./tab-pane -->
+									<!--div class="tab-pane fade active" id="style1Tab4">
+										<!--div class="block h4"><strong>Setting Tab</strong></div-->
+										<!--p class="m-top-sm">Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p-->
+											<div class="smart-widget widget-dark-blue">
+												<div class="smart-widget-header">
+													成交单数(个)
+													<span class="smart-widget-option">
+														<span class="refresh-icon-animated">
+															<i class="fa fa-circle-o-notch fa-spin"></i>
+														</span>
+														<a href="#" class="widget-toggle-hidden-option">
+															<i class="fa fa-cog"></i>
+														</a>
+														<a href="#" class="widget-collapse-option" data-toggle="collapse">
+															<i class="fa fa-chevron-up"></i>
+														</a>
+														<a href="#" class="widget-refresh-option">
+															<i class="fa fa-refresh"></i>
+														</a>
+														<a href="#" class="widget-remove-option">
+															<i class="fa fa-times"></i>
+														</a>
+													</span>
+												</div>
+												<div class="smart-widget-inner">
+													<div class="smart-widget-hidden-section">
+														<ul class="widget-color-list clearfix">
+															<li style="background-color:#20232b;" data-color="widget-dark"></li>
+															<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+															<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+															<li style="background-color:#2baab1;" data-color="widget-green"></li>
+															<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+															<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+															<li style="background-color:#e36159;" data-color="widget-red"></li>
+															<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+															<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+															<li style="background-color:#fff;" data-color="reset"></li>
+														</ul>
+													</div>
+													<div class="smart-widget-body no-padding">
+														<div class="padding-md">
+															<div id="chengjiao" class="morris-chart" style="width:auto;height:200px;"></div>
+														</div>
+
+														<div class="bg-grey">
+															<div class="row">
+																<div class="col-xs-12 text-center">
+																	<h3 class="m-top-sm">{{totalquantitypro}}</h3>
+																	<small class="m-bottom-sm block">累计成交单数</small>
+																</div>
+																<!--div class="col-xs-6 text-center">
+																	<h3 class="m-top-sm">721</h3>
+																	<small class="m-bottom-sm block">新增销售额</small>
+																</div-->
+																<!--div class="col-xs-4 text-center">
+																	<h3 class="m-top-sm">32</h3>
+																	<small class="m-bottom-sm block">销售增长量</small>
+																</div-->
+															</div>
+														</div>
+													</div>
+												</div><!-- ./smart-widget-inner -->
+											</div><!-- ./smart-widget -->
+									<!--/div><!-- ./tab-pane -->
+								<!--/div><!-- ./tab-content -->
+								<!--div class="tab-pane fade active" id="style1Tab5">
+										<!--div class="block h4"><strong>Setting Tab</strong></div-->
+										<!--p class="m-top-sm">Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p-->
+											<div class="smart-widget widget-dark-blue">
+												<div class="smart-widget-header">
+													客户满意度
+													<span class="smart-widget-option">
+														<span class="refresh-icon-animated">
+															<i class="fa fa-circle-o-notch fa-spin"></i>
+														</span>
+														<a href="#" class="widget-toggle-hidden-option">
+															<i class="fa fa-cog"></i>
+														</a>
+														<a href="#" class="widget-collapse-option" data-toggle="collapse">
+															<i class="fa fa-chevron-up"></i>
+														</a>
+														<a href="#" class="widget-refresh-option">
+															<i class="fa fa-refresh"></i>
+														</a>
+														<a href="#" class="widget-remove-option">
+															<i class="fa fa-times"></i>
+														</a>
+													</span>
+												</div>
+												<div class="smart-widget-inner">
+													<div class="smart-widget-hidden-section">
+														<ul class="widget-color-list clearfix">
+															<li style="background-color:#20232b;" data-color="widget-dark"></li>
+															<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+															<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+															<li style="background-color:#2baab1;" data-color="widget-green"></li>
+															<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+															<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+															<li style="background-color:#e36159;" data-color="widget-red"></li>
+															<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+															<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+															<li style="background-color:#fff;" data-color="reset"></li>
+														</ul>
+													</div>
+													<div class="smart-widget-body no-padding">
+														<div class="padding-md">
+															<div id="manyidu" class="morris-chart" style="width:auto;height:200px;"></div>
+														</div>
+
+														<div class="bg-grey">
+															<div class="row">
+																<div class="col-xs-4 text-center">
+																	<h3 class="m-top-sm">{{excellent_num}}</h3>
+																	<small class="m-bottom-sm block">累计非常满意数</small>
+																</div>
+																<div class="col-xs-4 text-center">
+																	<h3 class="m-top-sm">{{good_num}}</h3>
+																	<small class="m-bottom-sm block">累计满意数</small>
+																</div>
+																<div class="col-xs-4 text-center">
+																	<h3 class="m-top-sm">{{unsatisfy_num}}</h3>
+																	<small class="m-bottom-sm block">累计不满意数</small>
+																</div>
+																<!--div class="col-xs-4 text-center">
+																	<h3 class="m-top-sm">32</h3>
+																	<small class="m-bottom-sm block">销售增长量</small>
+																</div-->
+															</div>
+														</div>
+													</div>
+												</div><!-- ./smart-widget-inner -->
+											</div><!-- ./smart-widget -->
+									</div><!-- ./tab-pane -->
+								<!--/div><!-- ./tab-content -->
+							</div>
+							<!--button type="button" class="btn btn-primary marginTB-xs pull-right"><i class="fa fa-save m-right-xs"></i>一键生成报表</button-->
+						</div>
+					
+					</div><!-- ./smart-widget -->
+					<!--div class="row m-top-md">
+						<!--div class="col-lg-3 col-sm-6">
+							<!--div class="statistic-box bg-danger m-bottom-md">
+								<!--div class="statistic-title">
+									门店人流量累计统计
+								</div-->
+
+								<!--div class="statistic-value">
+									1024
+								</div-->
+
+								<!--div class="m-top-md">11% Higher than last week</div-->
+
+								<!--div class="statistic-icon-background">
+									<i class="ion-eye"></i>
+								</div-->
+							<!--/div-->
+						<!--/div-->
+
+						<!--div class="col-lg-3 col-sm-6">
+							<!--div class="statistic-box bg-info m-bottom-md">
+								<!--div class="statistic-title">
+									门店销售额累计统计
+								</div-->
+
+								<!--div class="statistic-value">
+									751
+								</div-->
+
+								<!--div class="m-top-md">8% Higher than last week</div-->
+
+								<!--div class="statistic-icon-background">
+									<i class="ion-ios7-cart-outline"></i>
+								</div-->
+							<!--/div-->
+						<!--/div-->
+
+						<!--div class="col-lg-3 col-sm-6">
+							<!--div class="statistic-box bg-purple m-bottom-md">
+								<!--div class="statistic-title">
+									当日门店人流量统计
+								</div-->
+
+								<!--div class="statistic-value">
+									129
+								</div-->
+
+								<!--div class="m-top-md">3% Higher than last week</div-->
+
+								<!--div class="statistic-icon-background">
+									<i class="ion-person-add"></i>
+								</div-->
+							<!--/div-->
+						<!--/div-->
+
+						<!--div class="col-lg-3 col-sm-6">
+							<!--div class="statistic-box bg-success m-bottom-md">
+								<!--div class="statistic-title">
+									当日销售额统计
+								</div-->
+
+								<!--div class="statistic-value">
+									203
+								</div-->
+
+								<!--div class="m-top-md">7% Higher than last week</div-->
+
+								<!--div class="statistic-icon-background">
+									<i class="ion-stats-bars"></i>
+								</div-->
+							<!--/div-->
+						<!--/div-->
+					<!--/div-->
+
+					<!--div class="row">
+						<div class="col-lg-6">
+							<div class="smart-widget widget-dark-blue">
+								<div class="smart-widget-header">
+									累计人流量
+									<span class="smart-widget-option">
+										<span class="refresh-icon-animated">
+											<i class="fa fa-circle-o-notch fa-spin"></i>
+										</span>
+			                            <a href="#" class="widget-toggle-hidden-option">
+			                                <i class="fa fa-cog"></i>
+			                            </a>
+			                            <a href="#" class="widget-collapse-option" data-toggle="collapse">
+			                                <i class="fa fa-chevron-up"></i>
+			                            </a>
+			                            <a href="#" class="widget-refresh-option">
+			                                <i class="fa fa-refresh"></i>
+			                            </a>
+			                            <a href="#" class="widget-remove-option">
+			                                <i class="fa fa-times"></i>
+			                            </a>
+			                        </span>
+								</div>
+								<div class="smart-widget-inner">
+									<div class="smart-widget-hidden-section">
+										<ul class="widget-color-list clearfix">
+											<li style="background-color:#20232b;" data-color="widget-dark"></li>
+											<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+											<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+											<li style="background-color:#2baab1;" data-color="widget-green"></li>
+											<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+											<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+											<li style="background-color:#e36159;" data-color="widget-red"></li>
+											<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+											<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+											<li style="background-color:#fff;" data-color="reset"></li>
+										</ul>
+									</div>
+									<div class="smart-widget-body no-padding">
+										<div class="padding-md">
+											<div id="totalSalesChart" class="morris-chart" style="height:250px;"></div>
+										</div>
+										
+										<div class="bg-grey">
+											<div class="row">
+												<div class="col-xs-6 text-center">
+													<h3 class="m-top-sm">999</h3>
+													<small class="m-bottom-sm block">累计人流量</small>
+												</div>
+												<div class="col-xs-6 text-center">
+													<h3 class="m-top-sm">102</h3>
+													<small class="m-bottom-sm block">新增人流量</small>
+												</div>
+												<!--div class="col-xs-4 text-center">
+													<h3 class="m-top-sm">5%</h3>
+													<small class="m-bottom-sm block">增长</small>
+												</div-->
+											<!--/div>
+										</div>
+									</div>
+								</div><!-- ./smart-widget-inner -->
+							<!--/div><!-- ./smart-widget -->
+						<!--/div><!-- ./col -->
+						<!--div class="col-lg-6">
+							<div class="smart-widget widget-dark-blue">
+								<div class="smart-widget-header">
+									累计销售额(RMB)
+									<span class="smart-widget-option">
+										<span class="refresh-icon-animated">
+											<i class="fa fa-circle-o-notch fa-spin"></i>
+										</span>
+			                            <a href="#" class="widget-toggle-hidden-option">
+			                                <i class="fa fa-cog"></i>
+			                            </a>
+			                            <a href="#" class="widget-collapse-option" data-toggle="collapse">
+			                                <i class="fa fa-chevron-up"></i>
+			                            </a>
+			                            <a href="#" class="widget-refresh-option">
+			                                <i class="fa fa-refresh"></i>
+			                            </a>
+			                            <a href="#" class="widget-remove-option">
+			                                <i class="fa fa-times"></i>
+			                            </a>
+			                        </span>
+								</div>
+								<div class="smart-widget-inner">
+									<div class="smart-widget-hidden-section">
+										<ul class="widget-color-list clearfix">
+											<li style="background-color:#20232b;" data-color="widget-dark"></li>
+											<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+											<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+											<li style="background-color:#2baab1;" data-color="widget-green"></li>
+											<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+											<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+											<li style="background-color:#e36159;" data-color="widget-red"></li>
+											<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+											<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+											<li style="background-color:#fff;" data-color="reset"></li>
+										</ul>
+									</div>
+									<div class="smart-widget-body no-padding">
+										<div class="padding-md">
+											<div id="placeholder" style="height:250px;"></div>
+										</div>
+
+										<div class="bg-grey">
+											<div class="row">
+												<div class="col-xs-6 text-center">
+													<h3 class="m-top-sm">3491</h3>
+													<small class="m-bottom-sm block">累计销售额</small>
+												</div>
+												<div class="col-xs-6 text-center">
+													<h3 class="m-top-sm">721</h3>
+													<small class="m-bottom-sm block">新增销售额</small>
+												</div>
+												<!--div class="col-xs-4 text-center">
+													<h3 class="m-top-sm">32</h3>
+													<small class="m-bottom-sm block">销售增长量</small>
+												</div-->
+											<!--/div>
+										</div>
+									</div>
+								</div><!-- ./smart-widget-inner -->
+							<!--/div><!-- ./smart-widget -->
+						<!--/div><!-- ./col -->
+					<!--/div-->
+
+					<!--div class="row">
+						<div class="col-lg-8">
+							<!--div class="row">
+								<div class="col-lg-6">
+									<div class="smart-widget">
+										<!--div class="smart-widget-header">
+											<i class="fa fa-calendar m-right-xs"></i>Calendar
+											<span class="smart-widget-option">
+												<span class="refresh-icon-animated">
+													<i class="fa fa-circle-o-notch fa-spin"></i>
+												</span>
+					                            <a href="#" class="widget-toggle-hidden-option">
+					                                <i class="fa fa-cog"></i>
+					                            </a>
+					                            <a href="#" class="widget-collapse-option" data-toggle="collapse">
+					                                <i class="fa fa-chevron-up"></i>
+					                            </a>
+					                            <a href="#" class="widget-refresh-option">
+					                                <i class="fa fa-refresh"></i>
+					                            </a>
+					                            <a href="#" class="widget-remove-option">
+					                                <i class="fa fa-times"></i>
+					                            </a>
+					                        </span>
+										</div-->
+										<!--div class="smart-widget-inner">
+											<div class="smart-widget-hidden-section">
+												<ul class="widget-color-list clearfix">
+													<li style="background-color:#20232b;" data-color="widget-dark"></li>
+													<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+													<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+													<li style="background-color:#2baab1;" data-color="widget-green"></li>
+													<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+													<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+													<li style="background-color:#e36159;" data-color="widget-red"></li>
+													<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+													<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+													<li style="background-color:#fff;" data-color="reset"></li>
+												</ul>
+											</div>
+											<div class="smart-widget-body no-padding bg-grey">
+												<p id="calendar" class="custom-calendar no-margin full-width"></p>
+											</div>
+											<ul class="list-group no-border">
+											    <li class="list-group-item">
+											    	Meeting
+											    	<span class="badge badge-success">7:30</span>
+											    </li>
+											    <li class="list-group-item">
+											    	Database Migration
+											    	<span class="badge badge-danger">11:15</span>
+											    </li>
+											</ul>
+										</div--><!-- ./smart-widget-inner -->
+									<!--/div--><!-- ./smart-widget -->
+								<!--/div><!-- ./col -->
+								<!--div class="col-lg-6">
+									<div class="smart-widget widget-purple">
+										<div class="smart-widget-header">
+											<i class="fa fa-comment"></i> Chat
+											<span class="smart-widget-option">
+												<span class="refresh-icon-animated">
+													<i class="fa fa-circle-o-notch fa-spin"></i>
+												</span>
+					                            <a href="#" class="widget-toggle-hidden-option">
+					                                <i class="fa fa-cog"></i>
+					                            </a>
+					                            <a href="#" class="widget-collapse-option" data-toggle="collapse">
+					                                <i class="fa fa-chevron-up"></i>
+					                            </a>
+					                            <a href="#" class="widget-refresh-option">
+					                                <i class="fa fa-refresh"></i>
+					                            </a>
+					                            <a href="#" class="widget-remove-option">
+					                                <i class="fa fa-times"></i>
+					                            </a>
+					                        </span>
+										</div>
+										<div class="smart-widget-inner">
+											<div class="smart-widget-hidden-section">
+												<ul class="widget-color-list clearfix">
+													<li style="background-color:#20232b;" data-color="widget-dark"></li>
+													<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+													<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+													<li style="background-color:#2baab1;" data-color="widget-green"></li>
+													<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+													<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+													<li style="background-color:#e36159;" data-color="widget-red"></li>
+													<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+													<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+													<li style="background-color:#fff;" data-color="reset"></li>
+												</ul>
+											</div>
+											<div class="smart-widget-body">
+												<div id="chatScroll">
+													<ul class="chat">
+														<li class="left clearfix">
+															<span class="chat-img pull-left">
+																<img src="images/profile/profile2.jpg" alt="User Avatar">
+															</span>
+															<div class="chat-body clearfix">
+																<div class="header">
+																	<strong class="primary-font">John Doe</strong>
+																	<small class="pull-right text-muted"><i class="fa fa-clock-o"></i> 12 mins ago</small>
+																</div>
+																<p>
+																	Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+																</p>
+															</div>
+														</li>
+														<li class="right clearfix">
+															<span class="chat-img pull-right">
+																<img src="images/profile/profile3.jpg" alt="User Avatar">
+															</span>
+															<div class="chat-body clearfix">
+															<div class="header">
+																<strong class="primary-font">Jane Doe</strong>
+																<small class="pull-right text-muted"><i class="fa fa-clock-o"></i> 13 mins ago</small>
+															</div>
+																<p>
+																	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare dolor, quis ullamcorper ligula sodales at. 
+																</p>
+															</div>
+														</li>
+														<li class="left clearfix">
+															<span class="chat-img pull-left">
+																<img src="images/profile/profile2.jpg" alt="User Avatar">
+															</span>
+															<div class="chat-body clearfix">
+																<div class="header">
+																	<strong class="primary-font">John Doe</strong>
+																	<small class="pull-right text-muted"><i class="fa fa-clock-o"></i> 20 mins ago</small>
+																</div>
+																<p>
+																	Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+																</p>
+															</div>
+														</li>
+														<li class="right clearfix">
+															<span class="chat-img pull-right">
+																<img src="images/profile/profile3.jpg" alt="User Avatar">
+															</span>
+															<div class="chat-body clearfix">
+																<div class="header">
+																	<strong class="primary-font">Jane Doe</strong>
+																	<small class="pull-right text-muted"><i class="fa fa-clock-o"></i> 25 mins ago</small>
+																</div>
+																<p>
+																	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare dolor, quis ullamcorper ligula sodales at. 
+																</p>
+															</div>
+														</li>
+													</ul>
+												</div>
+											</div>
+											<div class="smart-widget-footer">
+												<div class="input-group">
+													<input id="btn-input" type="text" class="form-control input-sm" placeholder="type your message here...">
+													<span class="input-group-btn">
+														<button class="btn btn-success btn-sm no-shadow" id="btn-chat">Send</button>
+													</span>
+												<!--/div><!-- /input-group -->
+											<!--/div><!-- ./smart-widget-footer -->
+										<!--/div><!-- ./smart-widget-inner -->
+									<!--/div><!-- ./smart-widget -->
+								<!--/div><!-- ./col -->
+							<!--/div---><!-- ./row -->
+
+							<!--div class="smart-widget">
+								<div class="smart-widget-header">
+									Website Statistic
+									<span class="smart-widget-option">
+										<span class="refresh-icon-animated">
+											<i class="fa fa-circle-o-notch fa-spin"></i>
+										</span>
+			                            <a href="#" class="widget-toggle-hidden-option">
+			                                <i class="fa fa-cog"></i>
+			                            </a>
+			                            <a href="#" class="widget-collapse-option" data-toggle="collapse">
+			                                <i class="fa fa-chevron-up"></i>
+			                            </a>
+			                            <a href="#" class="widget-refresh-option">
+			                                <i class="fa fa-refresh"></i>
+			                            </a>
+			                            <a href="#" class="widget-remove-option">
+			                                <i class="fa fa-times"></i>
+			                            </a>
+			                        </span>
+								</div>
+								<div class="smart-widget-inner table-responsive">
+									<div class="smart-widget-hidden-section">
+										<ul class="widget-color-list clearfix">
+											<li style="background-color:#20232b;" data-color="widget-dark"></li>
+											<li style="background-color:#4c5f70;" data-color="widget-dark-blue"></li>
+											<li style="background-color:#23b7e5;" data-color="widget-blue"></li>
+											<li style="background-color:#2baab1;" data-color="widget-green"></li>
+											<li style="background-color:#edbc6c;" data-color="widget-yellow"></li>
+											<li style="background-color:#fbc852;" data-color="widget-orange"></li>
+											<li style="background-color:#e36159;" data-color="widget-red"></li>
+											<li style="background-color:#7266ba;" data-color="widget-purple"></li>
+											<li style="background-color:#f5f5f5;" data-color="widget-light-grey"></li>
+											<li style="background-color:#fff;" data-color="reset"></li>
+										</ul>
+									</div>
+									<table class="table table-striped no-margin">
+										<thead>
+											<tr>
+												<th class="text-right">Date</th>
+												<th class="text-right">Database Usage</th>
+												<th class="text-right">CPU Usage</th>
+												<th class="text-right">Memory Usage</th>
+												<th class="text-right">Total Disk Usage</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td class="text-right">July, 11</td>
+												<td class="text-right">31.05%</td>
+												<td class="text-right">65.12%</td>
+												<td class="text-right">86.41%</td>
+												<td class="text-right">
+													<div class="progress progress-sm inline-block m-bottom-none" style="width:100px; margin-top:6px">
+													  <div class="progress-bar progress-bar-success" style="width: 54.41%;">
+													    <span class="sr-only">54.41% Complete</span>
+													  </div>
+													</div>
+
+													<span class="m-left-sm vertical-top">54.41%</span>
+												</td>
+											</tr>
+											<tr>
+												<td class="text-right">July, 12</td>
+												<td class="text-right">48.99%</td>
+												<td class="text-right">72.31%</td>
+												<td class="text-right">74.21%</td>
+												<td class="text-right">
+													<div class="progress progress-sm inline-block m-bottom-none" style="width:100px; margin-top:6px">
+													  <div class="progress-bar progress-bar-warning" style="width: 69.92%;">
+													    <span class="sr-only">69.92% Complete</span>
+													  </div>
+													</div>
+
+													<span class="m-left-sm vertical-top">69.92%</span>
+												</td>
+											</tr>
+											<tr>
+												<td class="text-right">July, 13</td>
+												<td class="text-right">13.68%</td>
+												<td class="text-right">32.31%</td>
+												<td class="text-right">50.82%</td>
+												<td class="text-right">
+													<div class="progress progress-sm inline-block m-bottom-none" style="width:100px; margin-top:6px">
+													  <div class="progress-bar progress-bar-danger" style="width: 43.17%;">
+													    <span class="sr-only">43.17% Complete</span>
+													  </div>
+													</div>
+
+													<span class="m-left-sm vertical-top">43.17%</span>
+												</td>
+											</tr>
+											<tr>
+												<td class="text-right">July, 14</td>
+												<td class="text-right">9.23%</td>
+												<td class="text-right">11.91%</td>
+												<td class="text-right">10.21%</td>
+												<td class="text-right">
+													<div class="progress progress-sm inline-block m-bottom-none" style="width:100px; margin-top:6px">
+													  <div class="progress-bar progress-bar-success" style="width: 12.11%;">
+													    <span class="sr-only">12.11% Complete</span>
+													  </div>
+													</div>
+
+													<span class="m-left-sm vertical-top">12.11%</span>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div><!-- ./smart-widget-inner -->
+							<!--/div><!-- ./smart-widget -->
+						<!--/div><!-- ./col -->
+						<!--div class="col-lg-4">
+							<div class="smart-widget">
+								<div class="smart-widget-header">
+									<span class="badge badge-danger pull-right">10</span>
+									To Do List
+								</div>
+								<div class="smart-widget-inner">
+									<div class="smart-widget-body clearfix">
+										<div class="search-input pull-left">
+											<input type="text" class="form-control input-sm">
+											<a href="#" class="input-icon text-normal"><i class="ion-ios7-search-strong"></i></a>
+										</div>
+										<a class="btn btn-success btn-sm pull-right"><i class="fa fa-plus"></i> Add Task</a>
+									</div>
+									<ul class="list-group to-do-list sortable-list no-border">
+										<li class="list-group-item" draggable="true">
+											<div class="custom-checkbox todo-checkbox">
+												<input type="checkbox" value="None" id="todo-check1">
+												<label for="todo-check1"></label>
+											</div>
+											SEO Optimisation
+											<div class="remove-list">
+												<i class="ion-close"></i>
+											</div>
+										</li>
+										<li class="list-group-item" draggable="true">
+											<div class="custom-checkbox todo-checkbox">
+												<input type="checkbox" id="todo-check2">
+												<label for="todo-check2"></label>
+											</div>
+											Unit Testing
+											<div class="remove-list">
+												<i class="ion-close"></i>
+											</div>
+										</li>
+										<li class="list-group-item" draggable="true">
+											<div class="custom-checkbox todo-checkbox">
+												<input type="checkbox" id="todo-check3">
+												<label for="todo-check3"></label>
+											</div>
+											Mobile Development
+											<div class="remove-list">
+												<i class="ion-close"></i>
+											</div>
+										</li>
+										<li class="list-group-item" draggable="true">
+											<div class="custom-checkbox todo-checkbox">
+												<input type="checkbox" id="todo-check4">
+												<label for="todo-check4"></label>
+											</div>
+											Database Migration
+											<div class="remove-list">
+												<i class="ion-close"></i>
+											</div>
+										</li>
+										<li class="list-group-item" draggable="true">
+											<div class="custom-checkbox todo-checkbox">
+												<input type="checkbox" id="todo-check5">
+												<label for="todo-check5"></label>
+											</div>
+											New Frontend Layout 
+											<div class="remove-list">
+												<i class="ion-close"></i>
+											</div>
+										</li>
+										<li class="list-group-item" draggable="true">
+											<div class="custom-checkbox todo-checkbox">
+												<input type="checkbox" id="todo-check6">
+												<label for="todo-check6"></label>
+											</div>
+											Bug Fixes 
+											<div class="remove-list">
+												<i class="ion-close"></i>
+											</div>
+										</li>
+									</ul>
+								</div><!-- ./smart-widget-inner -->
+							<!--/div><!-- ./smart-widget -->
+							<!--div class="task-widget">
+								<div class="task-widget-body clearfix">
+									<div class="pie-chart-wrapper">
+										<div class="chart task-pie-chart line-normal" data-percent="73">
+											<h1 class="m-top-lg m-bottom-none">73</h1>
+											<div>Percent</div>
+										</div>
+									</div>
+									<div class="widget-detail">
+										<small class="text-upper text-muted block font-sm">Task Completed</small>
+										<h1 class="no-margin">4312</h1>
+									</div>
+								</div><!-- ./task-widget-body -->
+								<!--div class="task-widget-statatistic">
+									<ul class="clearfix">
+										<li class="bg-grey border-success">
+											<div class="text-muted text-upper font-sm">Remaining</div>
+											2311
+										</li>
+										<li class="bg-grey border-danger">
+											<div class="text-muted text-upper font-sm">In Progress</div>
+											3212
+										</li>
+										<li class="bg-grey border-purple">
+											<div class="text-muted text-upper font-sm">Budget</div>
+											$17.1M
+										</li>
+									</ul><!-- ./row -->
+								<!--/div>
+							<!--/div><!-- ./task-widget -->
+						<!--/div><!-- ./col -->
+					<!--/div><!-- ./row -->
+
+					<!--div class="row">
+						<div class="col-md-3">
+							<div class="panel panel-default weather-widget">
+								<div class="panel-body bg-success text-white">
+									<div class="h4 text-white text-center">Today Weather</div>
+
+									<div class="m-top-md m-bottom-md text-center">
+										<canvas id="skycon1" width="120" height="120"></canvas>
+									</div>
+
+									<div class="degree-text text-center">22°</div>
+								</div>
+								<div class="panel-footer bg-white text-center padding-md">
+									<div class="h4 text-upper">New York <i class="fa fa-map-marker"></i></div>
+									<div class="text-muted font-12 m-top-xs">Rainy Day</div>
+								</div>
+							</div><!-- ./panel -->
+						<!--/div><!-- ./col -->
+						<!--div class="col-md-3">
+							<div class="panel panel-default weather-widget">
+								<div class="panel-body bg-warning text-white">
+									<div class="h4 text-white text-center">Today Weather</div>
+
+									<div class="m-top-md m-bottom-md text-center">
+										<canvas id="skycon2" width="120" height="120"></canvas>
+									</div>
+
+									<div class="degree-text text-center">37°</div>
+								</div>
+								<div class="panel-footer bg-white text-center padding-md">
+									<div class="h4 text-upper">London <i class="fa fa-map-marker"></i></div>
+									<div class="text-muted font-12 m-top-xs">Cloudy Day</div>
+								</div>
+							</div><!-- ./panel -->
+						<!--/div><!-- ./col -->
+						<!--div class="col-md-3">
+							<div class="panel panel-default weather-widget">
+								<div class="panel-body bg-danger text-white">
+									<div class="h4 text-white text-center">Today Weather</div>
+
+									<div class="m-top-md m-bottom-md text-center">
+										<canvas id="skycon3" width="120" height="120"></canvas>
+									</div>
+
+									<div class="degree-text text-center">21°</div>
+								</div>
+								<div class="panel-footer bg-white text-center padding-md">
+									<div class="h4 text-upper">Bangkok <i class="fa fa-map-marker"></i></div>
+									<div class="text-muted font-12 m-top-xs">Wind</div>
+								</div>
+							</div><!-- ./panel -->
+						<!--/div><!-- ./col -->
+						<!--div class="col-md-3">
+							<div class="panel panel-default weather-widget">
+								<div class="panel-body bg-info text-white">
+									<div class="h4 text-white text-center">Today Weather</div>
+
+									<div class="m-top-md m-bottom-md text-center">
+										<canvas id="skycon4" width="120" height="120"></canvas>
+									</div>
+
+									<div class="degree-text text-center">14°</div>
+								</div>
+								<div class="panel-footer bg-white text-center padding-md">
+									<div class="h4 text-upper">Tokyo <i class="fa fa-map-marker"></i></div>
+									<div class="text-muted font-12 m-top-xs">Clear Day</div>
+								</div>
+							</div><!-- ./panel -->
+						<!--/div><!-- ./col -->
+					<!--/div-->
+				</div><!-- ./padding-md -->
+			</div><!-- /main-container -->
+			{% endblock %}
+{% block custom2_js %}
+<!--script src="{% static '/js/jquery-1.11.1.min.js' %} "></script-->
+<!-- Simplify -->
+<script src="{% static 'js/simplify/simplify.js' %}"></script>
+<script src="{% static 'js/simplify/simplify_dashboard.js' %}"></script>
+<script type="text/javascript" src= " {% static 'datetimepicker/sample in bootstrap v3/bootstrap/js/bootstrap.min.js' %} "></script>  
+<script type="text/javascript" src= " {% static 'datetimepicker/js/bootstrap-datetimepicker.js' %} "></script>  
+<script type="text/javascript" src= " {% static 'datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js' %} "
+<script language="JavaScript">   
+var today=new Date();  
+var submitTime=today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();   
+$("#date").attr('value',submitTime);  
+</script> 
+<script >
+//$(function () {  
+    $('.dateFormat').datetimepicker({  
+        format: 'yyyy-mm-dd',  
+        language:'zh-CN-me',
+        weekStart:0, //一周从哪一天开始，0（星期日）到6（星期六），默认为0
+        //startDate:"2018-01-01",
+        //endDate:"2018-12-31",
+        //daysOfWeekDisabled:'0,6',//选定周六日不可选
+        autoclose:1, //选择完时间后自动关闭时间选择器
+        startView:'month', //打开时间选择器后首先显示的视图，0：半小时，1：一小时，2：日期，3：月份，4：年份
+        minView:'month', //能提供最精确的时间视图，0：精确到半小时，1：精确到1小时，2：精确到日期，3：精确到月份，4：精确到年份
+        maxView:'decade', //与上面相反
+        viewSelect:'decade', //与minView一样，支持'decade','year','month','day','hour'
+        pickerPosition:'bottom-right', //设置时间选择器打开的位置
+        todayBtn:'linked',//如此值为true或linked，则在日期时间选择器底部显示“Today”，按钮用于选择当前日期
+                        //如果为“true”，按钮仅将视图转到当前日期，如果市“linked”，则当前日期被选中
+        todayHighlight:true, //"true",高亮当前日期
+        keyboardNavigation:true, //是否可以通过键盘修改当前日期
+        //forceParse:true, //当选择器关闭时，是否强制解析输入框中的值
+        //minuteStep:0, //此数值用于构建小时视图，每个minuteStep都会生成一组预设时间（分钟）用于选择
+
+        //showMeridian:false //小时视图分为上午和下午视图  
+    }) ; 
+
+//$('#datetimepicker').datetimepicker('remove'); //移除日期选择器，同时移除已经绑定的event/内部绑定的对象和html元素
+$('#datetimepicker').datetimepicker('show'); //显示时间选择器
+$('#datetimepicker').datetimepicker('hide'); //隐藏时间选择器
+//$('#datetimepicker').datetimepicker('update'); //使用当前输入框的值更新日期选择器
+//$('#datetimepicker').datetimepicker('setStartDate','2018-01-01');//设定起始日期
+//$('#datetimepicker').datetimepicker('setEndDate','2018-12-31');//设置结束时间
+//$('#datetimepicker').datetimepicker('setDaysOfWeekDisabled',[0,6]);//设置不可选择的星期几
+//时间选择器显示出发事件
+//$('#datetimepicker').datetimepicker().on('show',function(ev){  
+    //alert('时间选择器显示');
+//});
+//时间选择器隐藏触发事件
+//$('#datetimepicker').datetimepicker().on('hide',function(ev){  
+    //alert('时间选择器隐藏');
+//});
+//当前日期被改变时触发
+//$('#datetimepicker').datetimepicker().on('changeDate',function(ev){  
+   // alert('日期被改变');
+//});
+//当十年视图上的年视图view被改变时触发
+//$('#datetimepicker').datetimepicker().on('changeYear',function(ev){  
+    //alert('日期被改变');
+//});
+//当年视图上的月视图view被改变时触发
+//$('#datetimepicker').datetimepicker().on('changeMonth',function(ev){  
+    //alert('月份被改变');
+//});
+
+//});
+//当用户选择日期超出startDate或endDate时，或通过setDate或setUTCDate设置超出范围时触发
+</script>
+
+<script type="text/javascript">
+    var series1=[{{ Series1|safe }}];
+    var series2=[{{ Series2|safe }}];
+    var series3=[{{ Series3|safe }}];
+    var series4=[{{ Series4|safe }}];
+    var series5=[{{ Series5|safe }}];
+</script>
+
+<script type="text/javascript">
+              var Region_select,Province_select,City_select,Store_select
+        //用来获得option元素中selected属性为true的元素的id
+        function Get_Selected_Id(region){
+            var pro = document.getElementById(region);
+            var Selected_Id = pro.options[pro.selectedIndex].id;
+            console.log("Get_Selected_Id:"+Selected_Id);  //测试使用
+            return Selected_Id;         //返回selected属性为true的元素的id
+        }
+ 
+        //执行相应的动作，调用相关数据请求函数
+        function Get_Next_Place(This_Place_ID,Action){
+            var Selected_Id = Get_Selected_Id(This_Place_ID);   //Selected_Id用来记录当前被选中的省或市的ID
+            if(Action=='Get_province')                            //从而可以在下一个级联中加载相应的市或县
+                Get_Province_Data(Selected_Id);
+            else if(Action=='Get_city')                            //从而可以在下一个级联中加载相应的市或县
+                Get_City_Data(Selected_Id);
+            else if(Action=='Get_store')
+                Get_Store_Data(Selected_Id);
+        }
+        
+         //向服务器请求城市列表数据并调用添加城市函数
+        function Get_Province_Data(Region_Selected_Id){    //这里的Selected_Id应该是被选中的省份的ID
+            console.log("Region_Selected_Id:"+Region_Selected_Id);   //测试使用
+            
+            if(Region_Selected_Id == 'Not_data1'){    //如果选择了"Province"选项，则表示重置当前City和Country的选项内容，不会向服务器请求数据
+                $("#province").empty();
+                $("#province").append("<option id='Not_data2'>省&nbsp;&nbsp;份</option>");
+                $("#city").empty();
+                $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+                $("#store").empty();
+                $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            }else{      //否则就会向服务器请求数据
+                $.getJSON('/org/GetProvinceData/',{'region':Region_Selected_Id},function(province_list){
+                    console.log(province_list);      //测试使用
+                    Add_province(province_list);    //调用添加城市选项函数
+                });
+            }
+        }
+ 
+        //在当前页面添加城市选项
+        function Add_province(province_list){
+            $("#province").empty();
+            $("#province").append("<option id='Not_data2'>省&nbsp;&nbsp;份</option>");
+            $("#city").empty();
+            $("#city").append("<option id='Not_data2'>城&nbsp;&nbsp;市</option>");
+            $("#store").empty();
+            $("#store").append("<option id='Not_data3'>门&nbsp;&nbsp;店</option>");
+            //上面的两次清空与两次添加是为了保持级联的一致性
+            for(var index in province_list){     //获得城市列表中的城市索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text =  "<option"+" id='"+province_list[index]+"'>"+province_list[index]+"</option>";
+                $("#province").append(text);
+                console.log(text);  //用来观察生成的text数据
+            }
+        }
+ 
+        //向服务器请求城市列表数据并调用添加城市函数
+        function Get_City_Data(Province_Selected_Id){    //这里的Selected_Id应该是被选中的省份的ID
+            console.log("Region_Selected_Id:"+Province_Selected_Id);   //测试使用
+            
+            if(Province_Selected_Id == 'Not_data2'){    //如果选择了"Province"选项，则表示重置当前City和Country的选项内容，不会向服务器请求数据
+                $("#city").empty();
+                $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+                $("#store").empty();
+                $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            }else{      //否则就会向服务器请求数据
+                $.getJSON('/org/GetCityData/',{'province':Province_Selected_Id},function(City_list){
+                    console.log(City_list);      //测试使用
+                    Add_city(City_list);    //调用添加城市选项函数
+                });
+            }
+        }
+ 
+        //在当前页面添加城市选项
+        function Add_city(City_list){
+            $("#city").empty();
+            $("#city").append("<option id='Not_data3'>城&nbsp;&nbsp;市</option>");
+            $("#store").empty();
+            $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+            //上面的两次清空与两次添加是为了保持级联的一致性
+            for(var index in City_list){     //获得城市列表中的城市索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text =  "<option"+" id='"+City_list[index]+"'>"+City_list[index]+"</option>";
+                $("#city").append(text);
+                console.log(text);  //用来观察生成的text数据
+            }
+        }
+ 
+        //向服务器请求门店列表数据并调用添加门店函数
+       function Get_Store_Data(City_Selected_Id){
+           console.log("City_Selected_Id:"+City_Selected_Id);   //测试使用
+           
+           if(City_Selected_Id == 'Not_data3'){     //如果选择了City选项，则表示重置当前Country的选项内容，不会向服务器请求数据
+               $("#store").empty();
+               $("#store").append("<option id='Not_data4'>门&nbsp;&nbsp;店</option>");
+               //上面的清空与添加是为了保持级联的一致性
+           }else{   //否则就会向服务器请求数据
+               var Region_Selected_ID = Get_Selected_Id("region");  //获得被选中省的ID，从而方便从服务器中加载数据
+               $.getJSON('/org/GetStoreData/',{'City':City_Selected_Id},function(Store_list){
+//                   console.log(Country_list);    //测试使用
+                    Add_store(Store_list);   //调用添加门店选项函数
+                   //Region_select=Region_Selected_ID;
+                   //console.log("REGION=",Region_select)
+                   //Province_select=Province_Selected_ID;
+                   //console.log("PROVINCE=",Province_select)
+                   //City_select=City_Selected_Id;
+                   //console.log("CITY=",City_select)
+                   
+        
+               });
+           }
+
+        }
+ 
+        //在当前页面添加门店选项
+        function Add_store(Store_list){
+            $("#store").empty();
+            $("#store").append("<option id='Not_data3'>门&nbsp;&nbsp;店</option>");
+            //上面的清空与添加是为了保持级联的一致性
+            for(var index in Store_list){     //获得县区列表中的县区索引
+                //添加内容的同时在option标签中添加对应的城市ID
+                var text = "<option"+" id='"+Store_list[index]+"'>"+Store_list[index]+"</option>";
+                $("#store").append(text);
+                console.log(Store_list[index]);  //用来观察生成的text数据
+                Store_select=Store_list[index];
+            }
+        }
+		 /*
+		$(function() {
+            if (localStorage.getItem('region')) {
+                $("#region option").eq(localStorage.getItem('region')).prop('selected', true);
+            }
+ 
+            $("#region").on('change', function() {
+                localStorage.setItem('region', $('option:selected', this).index());
+				console.log(localStorage.setItem('region', $('option:selected', this).index()));
+            });
+
+            if (localStorage.getItem('city')) {
+                $("#city option").eq(localStorage.getItem('city')).prop('selected', true);
+            }
+ 
+            $("#city").on('change', function() {
+                localStorage.setItem('city', $('option:selected', this).index());
+				console.log(localStorage.setItem('city', $('option:selected', this).index()));
+            });
+
+            if (localStorage.getItem('store')) {
+                $("#store option").eq(localStorage.getItem('store')).prop('selected', true);
+            }
+ 
+            $("#store").on('change', function() {
+                localStorage.setItem('store', $('option:selected', this).index());
+            });
+
+            if (localStorage.getItem('day_select')) {
+                $("#day_select option").eq(localStorage.getItem('day_select')).prop('selected', true);
+            }
+ 
+            $("#day_select").on('change', function() {
+                localStorage.setItem('day_select', $('option:selected', this).index());
+            });
+        });
+		 */
+		 /*
+		var Region_select=document.getElementById("region").value;
+        var City_select=document.getElementById("city").value;
+        var Store_select=document.getElementById("store").value;
+        var day_select= document.getElementById("day_select").value;
+        function upload_data(){
+        jsPost('/org/csv/', {
+                'Region_id': Region_select,
+                'City_id': City_select,
+                'Store_id':Store_select,
+                'day_select':day_select
+                });
+        }
+        var jsPost = function(action, values) {
+        var id = Math.random();
+        document.write('<form id="post' + id + '" name="post'+ id +'" action="' + action + '" method="post">');
+        for (var key in values) {
+        document.write('<input type="hidden" name="' + key + '" value="' + values[key] + '" />');
+        console.log(values[key]);
+            }
+        document.write('</form>');  
+        document.getElementById('post' + id).submit();
+        }
+        */
+
+
+</script>
+{% endblock %}

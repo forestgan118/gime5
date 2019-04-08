@@ -1,0 +1,21 @@
+.left{
+    float: left;
+    width: 20%;
+    height: 500px;
+    background-color: coral;
+    padding: 20px 20px;
+}
+.right{
+    width: 80%;
+    height: 500px;
+    background-color: azure;
+}
+.item-permission a{
+    display: block;
+}
+.hide{
+    display: none;
+}
+.item-permission a.active{
+    color: red;
+}

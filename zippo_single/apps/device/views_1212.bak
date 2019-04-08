@@ -1,0 +1,2904 @@
+# coding:utf-8
+import json
+import os
+import time
+import datetime
+import xlwt
+from django.http import FileResponse
+from io import StringIO
+from django.http import StreamingHttpResponse 
+from io import BytesIO
+from datetime import date
+from django.core.paginator import Paginator
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
+from json import dumps
+from django.shortcuts import render,redirect
+from django.views.generic import View
+from django.db.models import Q
+from django.db.models import Count
+from organization.models import RegionDict,CityDict,ProvinceDict, Store, SaleProduct_day, SaleProduct,SaleProduct_day_city,SaleProduct_day_province,SaleProduct_day_region,Sum_day_city,Sum_day_region,Sum_day_store,Sum_day_province
+from .models import Mqtt,wifiprobeData,wifiprobeData_day_region,wifiprobeData_day_city,wifiprobeData_day_province,SatisfactionData_day_city,SatisfactionData_day_province,SatisfactionData_day_region,wifiprobeData_day,wifiprobeData_week,wifiprobeData_month,wifiprobeData_quarter,wifiprobeData_year,SatisfactionData,SatisfactionData_day,SatisfactionData_week,SatisfactionData_month,SatisfactionData_quarter,SatisfactionData_year,DeviceStatus
+from macdata.models import DetailInfo, MasterInfo
+from django.utils.timezone import now, timedelta
+import collections
+from django.http import HttpResponse
+from .forms import UploadFileForm
+# Create your views here.
+#@sched.interval_schedule(seconds=3)  #装饰器，seconds=60意思为该函数为1分钟运行一次
+class WebsocketView(View):
+	def get(self,request):
+		return render(request,'time.html')
+        
+class Return_City_DataView(View):
+    def get(self,request):
+        all_city=CityDict.objects.all()
+        all_region = RegionDict.objects.all()
+        region_id = request.GET['region']
+        all_city = all_city.filter(region_id=int(region_id))
+        #print (region_id)
+        City_list = []
+        for city in all_city:
+            City_list.append(city.name)
+        return HttpResponse(json.dumps(City_list))    
+
+class Return_Store_DataView(View):
+    def get(self,request):
+        all_city=CityDict.objects.all()
+        all_store=Store.objects.all()
+        all_region = RegionDict.objects.all()
+        region_id,city_name = request.GET['region'],request.GET['City']
+        #print (region_id,city_name)
+        select_region=all_region.filter(id=int(region_id))
+        select_city=all_city.filter(name=str(city_name))
+        Store_list=[]
+        for city in select_city:
+            select_store=all_store.filter(city__id=int(city.id))
+        for store in select_store:
+            Store_list.append(store.name)
+        return HttpResponse(json.dumps(Store_list))
+
+class StatusView(View):
+    def get(self,request):
+        all_region = RegionDict.objects.all()
+        status=[]
+        return render(request, "devicestatusstart.html",{"all_region":all_region,"status":status})
+    def post(self, request):
+        # 查找到所有的机构
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_city = CityDict.objects.all()
+
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        device=DeviceStatus.objects.all()
+        date_from=request.POST.get('date',"")
+        #print (date_from)
+        date_to=request.POST.get('date2',"")
+        #print (date_to)
+        region_id=request.POST.get('region',"")
+        province_id=request.POST.get('province',"")
+        city_id=request.POST.get('city',"")
+        store_id=request.POST.get('store',"")
+        if region_id=="":
+            return HttpResponse("请重新选择区域")
+        if province_id=="":
+            return HttpResponse("请重新选择省份")
+        if city_id=="":
+            return HttpResponse("请重新选择城市")
+        if store_id=="":
+            return HttpResponse("请重新选择门店")
+        if date_from=="":
+            return HttpResponse("请重新选择时间")
+        if date_to=="":
+            return HttpResponse("请重新选择时间")
+        if date_from > date_to:
+                return HttpResponse("请重新选择时间")
+        elif date_from <= date_to:
+            if "全部" not in province_id:
+                region_select = all_region.filter(name=str(region_id)).values('id')
+                if len(region_select)==0:
+                        return HttpResponse("请重新选择区域")
+                province_select=all_province.filter(name=str(province_id)).values('id')
+                if len(province_select)==0:
+                    return HttpResponse("请重新选择省份")
+                if "全部" not in city_id:
+                    city_select = all_city.filter(name=str(city_id)).values('id')
+                    
+                    if len(city_select)==0:
+                        return HttpResponse("请重新选择城市")
+                    
+                    for data in region_select:
+                        region=data['id']
+                    for data in province_select:
+                        province=data['id']
+                    for data in city_select:
+                        city=data['id']
+                    if "全部" not in store_id:
+                        store_select = all_store.filter(name=str(store_id)).values('id')
+                        if len(store_select)==0:
+                            return HttpResponse("请重新选择门店")
+                        for data in store_select:
+                            store=data['id']
+                    elif "全部" in store_id:
+                        store=0
+                elif "全部" in city_id:
+                    region_select = all_region.filter(name=str(region_id)).values('id')
+                    if len(region_select)==0:
+                        return HttpResponse("请重新选择区域")
+                    province_select=all_province.filter(name=str(province_id)).values('id')
+                    if len(province_select)==0:
+                        return HttpResponse("请重新选择省份")
+                    for data in region_select:
+                        region=data['id']
+                    for data in province_select:
+                        province=data['id']
+                    city=0
+                    store=0
+            elif "全部" in province_id:
+                region_select = all_region.filter(name=str(region_id)).values('id')
+                if len(region_select)==0:
+                        return HttpResponse("请重新选择区域")
+                for data in region_select:
+                        region=data['id']
+                province=0
+                city=0
+                store=0
+        
+            '''
+            if "全部" not in city_id:
+                if "全部" not in store_id:
+                    status = device.filter(store=str(store_id),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region')
+                elif "全部" in store_id:
+                    status = device.filter(city=str(city_id),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region')
+            elif "全部" in city_id:
+                status = device.filter(region=str(region_id),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region')
+            '''
+        #print (store)
+        #url_request="/device/status/"+str(region)+"/"+str(province)+"/"+str(city)+"/"+str(store)+"/"
+        url_request="/device/statushome/"+str(region)+"/"+str(province)+"/"+str(city)+"/"+str(store)+"/"
+        #print (url_request)
+        return redirect(url_request+"?from="+str(date_from)+"&to="+str(date_to))
+
+        #return render(request, "devicestatus.html",{"status":status,"all_region":all_region})
+
+class StatusdetailView(View):
+    def get(self,request):
+        all_region = RegionDict.objects.all()
+        status=[]
+        return render(request, "devicestatus.html",{"all_region":all_region,"status":status})
+    def post(self, request):
+        # 查找到所有的机构
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_city = CityDict.objects.all()
+
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        device=DeviceStatus.objects.all()
+        date_from=request.POST.get('date',"")
+        
+        date_to=request.POST.get('date2',"")
+        
+        region_id=request.POST.get('region',"")
+        province_id=request.POST.get('province',"")
+        city_id=request.POST.get('city',"")
+        store_id=request.POST.get('store',"")
+        if region_id=="":
+            return HttpResponse("请重新选择区域")
+        if province_id=="":
+            return HttpResponse("请重新选择省份")
+        if city_id=="":
+            return HttpResponse("请重新选择城市")
+        if store_id=="":
+            return HttpResponse("请重新选择门店")
+        if date_from=="":
+            return HttpResponse("请重新选择时间")
+        if date_to=="":
+            return HttpResponse("请重新选择时间")
+        if date_from > date_to:
+                return HttpResponse("请重新选择时间")
+        elif date_from <= date_to:
+            if "全部" not in province_id:
+                region_select = all_region.filter(name=str(region_id)).values('id')
+                if len(region_select)==0:
+                        return HttpResponse("请重新选择区域")
+                province_select=all_province.filter(name=str(province_id)).values('id')
+                if len(province_select)==0:
+                    return HttpResponse("请重新选择省份")
+                if "全部" not in city_id:
+                    city_select = all_city.filter(name=str(city_id)).values('id')
+                    
+                    if len(city_select)==0:
+                        return HttpResponse("请重新选择城市")
+                    
+                    for data in region_select:
+                        region=data['id']
+                    for data in province_select:
+                        province=data['id']
+                    for data in city_select:
+                        city=data['id']
+                    if "全部" not in store_id:
+                        store_select = all_store.filter(name=str(store_id)).values('id')
+                        if len(store_select)==0:
+                            return HttpResponse("请重新选择门店")
+                        for data in store_select:
+                            store=data['id']
+                    elif "全部" in store_id:
+                        store=0
+                elif "全部" in city_id:
+                    region_select = all_region.filter(name=str(region_id)).values('id')
+                    if len(region_select)==0:
+                        return HttpResponse("请重新选择区域")
+                    province_select=all_province.filter(name=str(province_id)).values('id')
+                    if len(province_select)==0:
+                        return HttpResponse("请重新选择省份")
+                    for data in region_select:
+                        region=data['id']
+                    for data in province_select:
+                        province=data['id']
+                    city=0
+                    store=0
+            elif "全部" in province_id:
+                region_select = all_region.filter(name=str(region_id)).values('id')
+                if len(region_select)==0:
+                        return HttpResponse("请重新选择区域")
+                for data in region_select:
+                        region=data['id']
+                province=0
+                city=0
+                store=0
+        
+            '''
+            if "全部" not in city_id:
+                if "全部" not in store_id:
+                    status = device.filter(store=str(store_id),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region')
+                elif "全部" in store_id:
+                    status = device.filter(city=str(city_id),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region')
+            elif "全部" in city_id:
+                status = device.filter(region=str(region_id),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region')
+            '''
+        #print (store)
+        url_request="/device/status/"+str(region)+"/"+str(province)+"/"+str(city)+"/"+str(store)+"/"
+        #url_request="/device/statushome/"+str(region)+"/"+str(province)+"/"+str(city)+"/"+str(store)+"/"
+        #print (url_request)
+        return redirect(url_request+"?from="+str(date_from)+"&to="+str(date_to))
+        #return render(request, "devicestatus.html",{"status":status,"all_region":all_region})
+        
+class StatusAuthView(View):
+    #login_url = '/login/'
+    #redirect_field_name = 'next'
+    def get(self, request,param1,param2,param3,param4):
+        num1=param1
+        num2=param2
+        num3=param3
+        num4=param4
+        #print (num1)
+        #print (num2)
+        #print (num3)
+        #print (num4)
+        date_from=request.GET.get('from',"")
+        date_to=request.GET.get('to',"")
+        offset=request.GET.get('offset')
+        limit = request.GET.get('limit')
+        #print (date_from)
+        #print (date_to)
+        if date_from=="":
+            return HttpResponse("请重新选择时间")
+        if date_to=="":
+            return HttpResponse("请重新选择时间")
+        update_list=""
+        str=""
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_city = CityDict.objects.all()
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        region_id = all_region.filter(id=num1).values("name")
+        if num2!='0':
+            province_id = all_province.filter(id=num2).values("name")
+        elif num2=='0':
+            province_id=0
+        if num3!='0':
+            city_id = all_city.filter(id=num3).values("name")
+        elif num3=='0':
+            city_id=0
+        if num4!='0':
+            store_id = all_store.filter(id=num4).values("name","city_id")
+        elif num4=='0':
+            store_id=0
+        #print (region_id,city_id,store_id)
+        #series1=json.dumps(list(check_box_list))
+        
+        data_list=[]
+        store_data=[]
+        city_data=[]
+        region_data=[]
+        if province_id!=0 and city_id!=0 and store_id!=0:
+            #data_list=Store.objects.filter(name=store_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(store=store_id.values('name'),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region','province','name','time')
+            #print(status)
+        elif province_id!=0 and city_id!=0 and store_id==0:
+            #data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(city=city_id.values('name'),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region','province','name','time')
+            #print (data_list)
+        elif province_id!=0 and city_id==0 and store_id==0:
+            #data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(province=province_id.values('name'),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region','province','name','time')
+            #print (data_list)
+        elif province_id==0 and city_id==0 and store_id==0:
+            status = DeviceStatus.objects.filter(region=region_id.values('name'),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region','province','name','time')
+        #print(status)
+        '''
+        data_list_count=status.count()
+        if not offset:
+            offset = 0
+        if not limit:
+            limit = 20    # 默认是每页20行的内容，与前端默认行数一致
+        pageinator = Paginator(status, limit)   # 开始做分页
+
+        page = int(int(offset) / int(limit) + 1)    
+        response_data = {'total':data_list_count,'rows':[]}   # 必须带有rows和total这2个key，total表示总页数，rows表示每行的内容
+            
+        for asset in pageinator.page(page):    
+            # 下面这些asset_开头的key，都是我们在前端定义好了的，前后端必须一致，前端才能接受到数据并且请求.
+            #print ('asset=',asset)
+            response_data['rows'].append({
+                #"asset_id": '<a href="/asset/asset_list/%d" target="_blank">%d</a>' %(asset.id,asset.id),   
+                "time" : asset['time'].strftime("%y-%m-%d ") if asset['time'] else "",
+                "region": asset['region'] if asset['region'] else "",
+                "province": asset['province'] if asset['province'] else "",
+                "city": asset['city'] if asset['city'] else "",
+                "store": asset['store'] if asset['store'] else "",
+                "device_id": asset['name'] if asset['name'] else "",
+                "add_time": asset['add_time'].strftime("%y-%m-%d %h:%m:%s") if asset['add_time'] else "",
+                "online_status": asset['online_status'] if asset['online_status'] else "",
+                })
+        return  HttpResponse(json.dumps(response_data))
+        '''
+        
+        if status:
+            return render(request, "devicestatus.html",
+                        {"status":status,
+                        "all_region":all_region,
+                        "region1":json.dumps(num1),
+                         "province1":json.dumps(num2),
+                         "city1":json.dumps(num3),
+                         "store1":json.dumps(num4),
+                         "date_from1":json.dumps(date_from),
+                         "date_to1":json.dumps(date_to),
+                        })
+        else:
+            return HttpResponse("没有数据")
+    def toDicts(objs):
+            obj_arr=[]
+            for o in objs:
+                    obj_arr.append(o.toDict())
+            return obj_arr
+        
+
+def Caltime(date1,date2):  
+        #%Y-%m-%d为日期格式，其中的-可以用其他代替或者不写，但是要统一，同理后面的时分秒也一样；可以只计算日期，不计算时间。  
+        #date1=time.strptime(date1,"%Y-%m-%d %H:%M:%S")   
+        #date2=time.strptime(date2,"%Y-%m-%d %H:%M:%S")  
+        date1=time.strptime(date1,"%Y-%m-%d")  
+        date2=time.strptime(date2,"%Y-%m-%d")  
+        #根据上面需要计算日期还是日期时间，来确定需要几个数组段。下标0表示年，小标1表示月，依次类推...  
+        #date1=datetime.datetime(date1[0],date1[1],date1[2],date1[3],date1[4],date1[5])  
+        #date2=datetime.datetime(date2[0],date2[1],date2[2],date2[3],date2[4],date2[5])  
+        date1=datetime.datetime(date1[0],date1[1],date1[2])  
+        date2=datetime.datetime(date2[0],date2[1],date2[2])  
+        #返回两个变量相差的值，就是相差天数  
+        return date2-date1               
+            
+class StatushomeAuthView(View):
+    #login_url = '/login/'
+    #redirect_field_name = 'next'
+    
+    
+    def get(self, request,param1,param2,param3,param4):
+        num1=param1
+        num2=param2
+        num3=param3
+        num4=param4
+        date_from=request.GET.get('from',"")
+        date_to=request.GET.get('to',"")
+        
+        if date_from=="":
+            return HttpResponse("请重新选择时间")
+        if date_to=="":
+            return HttpResponse("请重新选择时间")
+        update_list=""
+        str=""
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_city = CityDict.objects.all()
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        region_id = all_region.filter(id=num1).values("name")
+        if num2!='0':
+            province_id = all_province.filter(id=num2).values("name")
+        elif num2=='0':
+            province_id=0
+        if num3!='0':
+            city_id = all_city.filter(id=num3).values("name")
+        elif num3=='0':
+            city_id=0
+        if num4!='0':
+            store_id = all_store.filter(id=num4).values("name","city_id")
+        elif num4=='0':
+            store_id=0
+        #print (region_id,city_id,store_id)
+        #series1=json.dumps(list(check_box_list))
+        #duration=Caltime(date_from,date_to)
+        #print ("duration=",duration)
+        data_list=[]
+        store_data=[]
+        city_data=[]
+        region_data=[]
+        province_data=[]
+        duration=[]
+        time1=datetime.datetime.strptime(date_from,'%Y-%m-%d')
+        time2=datetime.datetime.strptime(date_to,'%Y-%m-%d')
+        d=(time2-time1).days
+        #print (d)
+        if province_id!=0 and city_id!=0 and store_id!=0:
+            #data_list=Store.objects.filter(name=store_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(store=store_id.values('name'),time__range=(date_from, date_to)).values('store','city','province','region','device_id').order_by('store').distinct()
+            #first_day= DeviceStatus.objects.filter(store=store_id.values('name'),time__range=(date_from, date_to)).values('time').first()
+            #last_day= DeviceStatus.objects.filter(store=store_id.values('name'),time__range=(date_from, date_to)).values('time').last()
+            for data in status:
+                store_data.append(data)
+            #print (store_data)
+            for x in range(len(store_data)):
+                #storex=store_data[x]
+                day= DeviceStatus.objects.filter(store=store_data[x]['store'],time__range=(date_from, date_to)).values('time').order_by('time').distinct().count()
+                duration.append(day)
+            #print ("duration=",duration)
+            #for x in range(len(duration)):
+            #    d={'day':duration[x]}
+            for x in range(len(store_data)):
+                store_data[x].update(day=duration[x])                #添加字典元素
+                store_data[x].update(dayoff=d-duration[x])
+
+        elif province_id!=0 and city_id!=0 and store_id==0:
+            #data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            #status = DeviceStatus.objects.filter(city=city_id.values('name'),time__range=(date_from, date_to)).values('store','city','region','province','name','time').order_by('store').distinct()
+            status = DeviceStatus.objects.filter(city=city_id.values('name'),time__range=(date_from, date_to)).values('store','city','province','region','device_id').order_by('store').distinct()
+            #print ("status=",status)
+            for data in status:
+                store_data.append(data)
+            #print ("store_data=",store_data)
+            for x in range(len(store_data)):
+                #storex=store_data[x]
+                day= DeviceStatus.objects.filter(store=store_data[x]['store'],time__range=(date_from, date_to)).values('time').order_by('time').distinct().count()
+                duration.append(day)
+            #print ("duration=",duration)
+            
+            #for x in range(len(duration)):
+            #    d1={'day':duration[x]}
+            #print ("d1=",d1) 
+            for x in range(len(store_data)):
+                store_data[x].update(day=duration[x])                #添加字典元素
+                store_data[x].update(dayoff=d-duration[x])
+                
+            for x in range(len(store_data)):
+                if store_data[x]['store'] not in data_list:
+                    data_list.append(store_data[x])
+            #print ('data_list=',data_list)
+
+        elif province_id!=0 and city_id==0 and store_id==0:
+            #data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(province=province_id.values('name'),time__range=(date_from, date_to)).values('store','city','province','region','device_id').order_by('store').distinct()
+            #print (data_list)
+            for data in status:
+                store_data.append(data)
+            #print (store_data)
+            for x in range(len(store_data)):
+                #storex=store_data[x]
+                day= DeviceStatus.objects.filter(store=store_data[x]['store'],time__range=(date_from, date_to)).values('time').order_by('time').distinct().count()
+                duration.append(day)
+            #print ("duration=",duration)
+            #for x in range(len(duration)):
+            #    d={'day':duration[x]}
+            for x in range(len(store_data)):
+                store_data[x].update(day=duration[x])                #添加字典元素
+                store_data[x].update(dayoff=d-duration[x])
+                
+            for x in range(len(store_data)):
+                if store_data[x] not in data_list:
+                    data_list.append(store_data[x])
+            #print ('data_list=',data_list)
+        elif province_id==0 and city_id==0 and store_id==0:
+            status = DeviceStatus.objects.filter(region=region_id.values('name'),time__range=(date_from, date_to)).values('store','city','province','region','device_id').order_by('store').distinct()
+            for data in status:
+                store_data.append(data)
+            #print (store_data)
+            for x in range(len(store_data)):
+                #storex=store_data[x]
+                day= DeviceStatus.objects.filter(store=store_data[x]['store'],time__range=(date_from, date_to)).values('time').order_by('time').distinct().count()
+                duration.append(day)
+            #print ("duration=",duration)
+            #for x in range(len(duration)):
+            #    d={'day':duration[x]}
+            for x in range(len(store_data)):
+                store_data[x].update(day=duration[x])                #添加字典元素
+                store_data[x].update(dayoff=d-duration[x])
+        if status:
+            return render(request, "devicestatushome.html",
+                        {"status":store_data,
+                         "duration":duration,
+                         "all_region":all_region,
+                         "region1":json.dumps(num1),
+                         "province1":json.dumps(num2),
+                         "city1":json.dumps(num3),
+                         "store1":json.dumps(num4),
+                         "date_from1":json.dumps(date_from),
+                         "date_to1":json.dumps(date_to),
+                         "date_from":date_from,
+                         "date_to":date_to,
+                        })
+        else:
+            return HttpResponse("没有数据")
+    def toDicts(objs):
+            obj_arr=[]
+            for o in objs:
+                    obj_arr.append(o.toDict())
+            return obj_arr
+         
+         
+class StatustableView(View):
+    
+                    
+    def post(self, request,param1,param2,param3,param4):
+        num1=param1
+        num2=param2
+        num3=param3
+        num4=param4
+        deviceid=0
+        
+        if request.is_ajax():
+            if request.method == 'POST':
+                date_from=request.POST.get('from',"")
+                date_to=request.POST.get('to',"")
+      
+        if date_from=="":
+            return HttpResponse("请重新选择时间")
+        if date_to=="":
+            return HttpResponse("请重新选择时间")
+        #print ("param=",num1,num2,num3,num4)
+        #print(date_from,date_to)
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        #all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_province= ProvinceDict.objects.all()
+        all_city = CityDict.objects.all()
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        region_id = all_region.filter(id=num1).values("name")
+        if num2!='0':
+            province_id = all_province.filter(id=num2).values("name")
+        elif num2=='0':
+            province_id=0
+        if num3!='0':
+            city_id = all_city.filter(id=num3).values("name")
+        elif num3=='0':
+            city_id=0
+        if num4!='0':
+            store_id = all_store.filter(id=num4).values("name","city_id")
+        elif num4=='0':
+            store_id=0
+        #print (region_id,city_id,store_id,date_from,date_to)
+
+        data_list=[]
+        store_data=[]
+        city_data=[]
+        region_data=[]
+        duration=[]
+        sum1=0
+        quantity1=0
+        sum=[]
+        quantity=[]
+        time1=datetime.datetime.strptime(date_from,'%Y-%m-%d')
+        time2=datetime.datetime.strptime(date_to,'%Y-%m-%d')
+        d=(time2-time1).days
+        if province_id!=0 and city_id!=0 and store_id!=0:
+            #data_list=Store.objects.filter(name=store_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(store=store_id.values('name'),time__range=(date_from, date_to)).values('store','city','province','region','device_id').order_by('store').distinct()
+            #first_day= DeviceStatus.objects.filter(store=store_id.values('name'),time__range=(date_from, date_to)).values('time').first()
+            #last_day= DeviceStatus.objects.filter(store=store_id.values('name'),time__range=(date_from, date_to)).values('time').last()
+            for data in status:
+                store_data.append(data)
+            #print (store_data)
+            for x in range(len(store_data)):
+                #storex=store_data[x]
+                day= DeviceStatus.objects.filter(store=store_data[x]['store'],time__range=(date_from, date_to)).values('time').order_by('time').distinct().count()
+                duration.append(day)
+            #print ("duration=",duration)
+            #for x in range(len(duration)):
+            #    d={'day':duration[x]}
+            for x in range(len(store_data)):
+                store_data[x].update(day=duration[x])                #添加字典元素
+                store_data[x].update(dayoff=d-duration[x])
+                
+        elif province_id!=0 and city_id!=0 and store_id==0:
+            #data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            #status = DeviceStatus.objects.filter(city=city_id.values('name'),time__range=(date_from, date_to)).values('store','city','region','province','name','time').order_by('store').distinct()
+            status = DeviceStatus.objects.filter(city=city_id.values('name'),time__range=(date_from, date_to)).values('store','city','province','region','device_id').order_by('store').distinct()
+            #print ("status=",status)
+            for data in status:
+                store_data.append(data)
+            #print (store_data)
+            for x in range(len(store_data)):
+                #storex=store_data[x]
+                day= DeviceStatus.objects.filter(store=store_data[x]['store'],time__range=(date_from, date_to)).values('time').order_by('time').distinct().count()
+                duration.append(day)
+            #print ("duration=",duration)
+            #for x in range(len(duration)):
+            #    d={'day':duration[x]}
+            for x in range(len(store_data)):
+                store_data[x].update(day=duration[x])                #添加字典元素
+                store_data[x].update(dayoff=d-duration[x])
+                
+        elif province_id!=0 and city_id==0 and store_id==0:
+            #data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(province=province_id.values('name'),time__range=(date_from, date_to)).values('store','city','province','region','device_id').order_by('store').distinct()
+            #print (data_list)
+            for data in status:
+                store_data.append(data)
+            #print (store_data)
+            for x in range(len(store_data)):
+                #storex=store_data[x]
+                day= DeviceStatus.objects.filter(store=store_data[x]['store'],time__range=(date_from, date_to)).values('time').order_by('time').distinct().count()
+                duration.append(day)
+            #print ("duration=",duration)
+            #for x in range(len(duration)):
+            #    d={'day':duration[x]}
+            for x in range(len(store_data)):
+                store_data[x].update(day=duration[x])                #添加字典元素
+                store_data[x].update(dayoff=d-duration[x])
+            
+        elif province_id==0 and city_id==0 and store_id==0:
+            status = DeviceStatus.objects.filter(region=region_id.values('name'),time__range=(date_from, date_to)).values('store','city','province','region','device_id').order_by('store').distinct()
+            for data in status:
+                store_data.append(data)
+            #print (store_data)
+            for x in range(len(store_data)):
+                #storex=store_data[x]
+                day= DeviceStatus.objects.filter(store=store_data[x]['store'],time__range=(date_from, date_to)).values('time').order_by('time').distinct().count()
+                duration.append(day)
+            #print ("duration=",duration)
+            #for x in range(len(duration)):
+            #    d={'day':duration[x]}
+            for x in range(len(store_data)):
+                store_data[x].update(day=duration[x])                #添加字典元素
+                store_data[x].update(dayoff=d-duration[x])
+            
+        ws =xlwt.Workbook(encoding='utf-8')
+        w = ws.add_sheet(u"数据报表第一页")
+        #w.write(0, 0, u"时间")
+        w.write(0, 0, u"区域")
+        w.write(0, 1, u"省份")
+        w.write(0, 2, u"城市")
+        w.write(0, 3, u"门店")
+        w.write(0, 4, u"设备ID")
+        w.write(0, 5, u"开机时间(天)")
+        w.write(0, 6, u"关机时间(天)")
+        excel_row = 1
+            
+
+
+            
+        for data in store_data:
+            #data_time=data['time'].strftime("%Y-%m-%d ")
+            region=data['region']
+            province=data['province']
+            city=data['city']
+            store=data['store']
+            deviceid=data['device_id']
+            day=data['day']
+            dayoff=data['dayoff']
+            #w.write(excel_row, 0, data_time)
+            w.write(excel_row, 0, region)
+            w.write(excel_row, 1, province)
+            w.write(excel_row, 2, city)
+            w.write(excel_row, 3, store)
+            w.write(excel_row, 4, deviceid)
+            w.write(excel_row, 5, day)
+            w.write(excel_row, 6, dayoff)
+            excel_row += 1
+            '''
+            def file_iterator(file_name, chunk_size=512):
+                with open(file_name,encoding='utf-8') as f:
+                    while True:
+                        c = f.read(chunk_size).decode("utf8")
+                        if c:
+                            yield c
+                        else:
+                            break
+            
+            '''
+        path=os.path
+        #print(path)
+        exist_file = path.exists("data.xls")
+        if exist_file:
+            os.remove(r"data.xls")
+        ws.save("data.xls")
+        return HttpResponse("下载成功")
+            
+class StatustabledetailView(View):
+    
+                    
+    def post(self, request,param1,param2,param3,param4):
+        num1=param1
+        num2=param2
+        num3=param3
+        num4=param4
+        deviceid=0
+        
+        if request.is_ajax():
+            if request.method == 'POST':
+                date_from=request.POST.get('from',"")
+                date_to=request.POST.get('to',"")
+      
+        if date_from=="":
+            return HttpResponse("请重新选择时间")
+        if date_to=="":
+            return HttpResponse("请重新选择时间")
+        #print ("param=",num1,num2,num3,num4)
+        #print(date_from,date_to)
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        #all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_province= ProvinceDict.objects.all()
+        all_city = CityDict.objects.all()
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        region_id = all_region.filter(id=num1).values("name")
+        if num2!='0':
+            province_id = all_province.filter(id=num2).values("name")
+        elif num2=='0':
+            province_id=0
+        if num3!='0':
+            city_id = all_city.filter(id=num3).values("name")
+        elif num3=='0':
+            city_id=0
+        if num4!='0':
+            store_id = all_store.filter(id=num4).values("name","city_id")
+        elif num4=='0':
+            store_id=0
+        #print (region_id,city_id,store_id,date_from,date_to)
+
+        data_list=[]
+        store_data=[]
+        city_data=[]
+        region_data=[]
+        if province_id!=0 and city_id!=0 and store_id!=0:
+            #data_list=Store.objects.filter(name=store_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(store=store_id.values('name'),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region','province','name','time')
+            #print(status)
+        elif province_id!=0 and city_id!=0 and store_id==0:
+            #data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(city=city_id.values('name'),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region','province','name','time')
+            #print (data_list)
+        elif province_id!=0 and city_id==0 and store_id==0:
+            #data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            status = DeviceStatus.objects.filter(province=province_id.values('name'),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region','province','name','time')
+            #print (data_list)
+        elif province_id==0 and city_id==0 and store_id==0:
+            status = DeviceStatus.objects.filter(region=region_id.values('name'),time__range=(date_from, date_to)).values('online_status','add_time','store','city','region','province','name','time')
+            
+        ws =xlwt.Workbook(encoding='utf-8')
+        w = ws.add_sheet(u"数据报表第一页")
+        w.write(0, 0, u"时间")
+        w.write(0, 1, u"区域")
+        w.write(0, 2, u"省份")
+        w.write(0, 3, u"城市")
+        w.write(0, 4, u"门店")
+        w.write(0, 5, u"设备ID")
+        w.write(0, 6, u"设备状态")
+        w.write(0, 7, u"开关机时间")
+        excel_row = 1
+            
+
+
+            
+        for data in status:
+            data_time=data['time'].strftime("%Y-%m-%d ")
+            region=data['region']
+            province=data['province']
+            city=data['city']
+            store=data['store']
+            deviceid=data['name']
+            device_status=data['online_status']
+            add_time=data['add_time'].strftime('%Y-%m-%d %H:%M:%S')
+            w.write(excel_row, 0, data_time)
+            w.write(excel_row, 1, region)
+            w.write(excel_row, 2, province)
+            w.write(excel_row, 3, city)
+            w.write(excel_row, 4, store)
+            w.write(excel_row, 5, deviceid)
+            w.write(excel_row, 6, device_status)
+            w.write(excel_row, 7, add_time)
+            excel_row += 1
+            '''
+            def file_iterator(file_name, chunk_size=512):
+                with open(file_name,encoding='utf-8') as f:
+                    while True:
+                        c = f.read(chunk_size).decode("utf8")
+                        if c:
+                            yield c
+                        else:
+                            break
+            
+            '''
+        path=os.path
+        #print(path)
+        exist_file = path.exists("data.xls")
+        if exist_file:
+            os.remove(r"data.xls")
+        ws.save("data.xls")
+        return HttpResponse("下载成功")
+            
+class SoftwareView(View):
+    #login_url = '/login/'
+    #redirect_field_name = 'next'
+    def get(self, request):
+        all_region = RegionDict.objects.all()
+        data_list=[]
+        mqtt=Mqtt.objects.values("name","login_name","port","password","keepAlive")
+        for mqtt_data in mqtt:
+            #print (mqtt_data['name'])
+            host_name=mqtt_data['name']
+            username=mqtt_data['login_name']
+            password=mqtt_data['password']
+            port=mqtt_data['port']
+            keepAlive=mqtt_data['keepAlive']
+            #print (host_name,username,password,port,keepAlive)
+        return render(request, "software.html",{"all_region":all_region,
+                                                "data_list":data_list,
+                                                "hostname":json.dumps(host_name),
+                                                "username":json.dumps(username),
+                                                "port":json.dumps(port),
+                                                "password":json.dumps(password),
+                                                "keepAlive":json.dumps(keepAlive),
+                                                })
+    #store = forms.CharField()
+    def post(self, request):
+        # 查找到所有的机构
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        #all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_city = CityDict.objects.all()
+        select_region=""
+        select_city=""
+        select_store=""
+
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        data_list=[]
+        region_id=request.POST.get('region',"")
+        city_id=request.POST.get('city',"")
+        store_id=request.POST.get('store',"")
+        if region_id=="":
+            return HttpResponse("请重新选择区域")
+        if city_id=="":
+            return HttpResponse("请重新选择城市")
+        if store_id=="":
+            return HttpResponse("请重新选择门店")
+        #update=[]
+        update = request.POST.getlist('inlineRadio')
+        #print (region_id,city_id,store_id)
+        mqtt=Mqtt.objects.values("name","login_name","port","password","keepAlive")
+        for mqtt_data in mqtt:
+            #print (mqtt_data['name'])
+            host_name=mqtt_data['name']
+            username=mqtt_data['login_name']
+            password=mqtt_data['password']
+            port=mqtt_data['port']
+            keepAlive=mqtt_data['keepAlive']
+            #print (host_name,username,password,port,keepAlive)
+        
+        
+        
+        #update=check_box_list.split(',')
+        #print('update=',update)
+        if "全部" not in city_id:
+            #region_select = all_region.filter(name=str(region_id)).values('id')
+            #city_select = all_city.filter(name=str(city_id)).values('id')
+            #for data in region_select:
+            #    region=data['id']
+            #for data in city_select:
+            #    city=data['id']
+            if "全部" not in store_id:
+                device_id = all_store.filter(name=str(store_id)).values('device_id')
+                if not device_id:
+                    return HttpResponse("请重新选择门店")
+                #for data in store_select:
+                #    device_id=data['device_id']
+                    
+            elif "全部" in store_id:
+                device_id = all_city.filter(name=str(city_id)).values('device_id')
+                #store=0
+        elif "全部" in city_id:
+            #region_select = all_region.filter(name=str(region_id)).values('id')
+            device_id = all_region.filter(name=str(region_id)).values('device_id')
+            #for data in region_select:
+            #    region=data['id']
+            #city=0
+            #store=0
+        #print (region_select,city_select,store_select)
+        #if region_id and city_id and store_id and date_from and date_to :
+        #if region_id and city_id and store_id :
+        #url_request="/device/resource/"+str(region)+"/"+str(city)+"/"+str(store)+"/"
+        #print (url_request)
+        #return redirect(url_request+"?inlineRadio="+str(check_box_list))
+        for device in device_id:
+            deviceid=device['device_id']
+        #print (update)
+        files=request.FILES.getlist('updata_software')
+        try:
+            for f in files:
+                file_path=os.path.join('update/'+str(deviceid),f.name)
+                #update.append(f.name)
+                file=open(file_path, mode='wb+')
+                for chunk in f.chunks():
+                    file.write(chunk)
+                file.close()
+            updatecmd="success"
+            #print (updatecmd)
+        except Exception as e:
+            print (e)
+            updatecmd="failure"
+            
+        return render(request, "software.html",
+                    {"data_list":data_list,
+                     "updata_list":update,
+                     "all_region":all_region,
+                     "device_id":json.dumps(deviceid),
+                     "hostname":json.dumps(host_name),
+                     "username":json.dumps(username),
+                     "port":json.dumps(port),
+                     "password":json.dumps(password),
+                     "keepAlive":json.dumps(keepAlive),
+                     #"update_data":json.dumps(list(update)),
+                     #"store":store_id,
+                     })
+                     
+    def toDicts(objs):
+            obj_arr=[]
+            for o in objs:
+                    obj_arr.append(o.toDict())
+            return obj_arr
+
+'''
+class SoftwareAuthView(View):
+    #login_url = '/login/'
+    #redirect_field_name = 'next'
+    def get(self, request,param1,param2,param3):
+        num1=param1
+        num2=param2
+        num3=param3
+        update_list=""
+        update_data=[]
+        update=[]
+        str=""
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        #all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_city = CityDict.objects.all()
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        region_id = all_region.filter(id=num1).values("name")
+        if num2!='0':
+            city_id = all_city.filter(id=num2).values("name")
+        elif num2=='0':
+            city_id=0
+        if num3!='0':
+            store_id = all_store.filter(id=num3).values("name","city_id")
+        elif num3=='0':
+            store_id=0
+        print (region_id,city_id,store_id)
+        #series1=json.dumps(list(check_box_list))
+        
+        data_list=[]
+        store_data=[]
+        city_data=[]
+        region_data=[]
+        if city_id!=0 and store_id!=0:
+            data_list=Store.objects.filter(name=store_id.values('name')).values('name','cityname','regionname')
+            device_id=Store.objects.filter(name=store_id.values('name')).values('device_id')
+            
+        elif city_id!=0 and store_id==0:
+            data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            device_id=Store.objects.filter(name=store_id.values('name')).values('device_id')
+            print (data_list)
+        elif city_id==0 and store_id==0:
+            data_list=Store.objects.filter(regionname=region_id.values('name')).values('name','cityname','regionname')
+            device_id=Store.objects.filter(name=store_id.values('name')).values('device_id')
+        return render(request, "software.html",
+                    {"data_list":data_list,
+                     "device_id":json.dumps(list(device_id)),
+                     })
+    def toDicts(objs):
+            obj_arr=[]
+            for o in objs:
+                    obj_arr.append(o.toDict())
+            return obj_arr
+    
+    
+class SoftwareUpdateView(View):
+    def post(self, request):
+        deviceid=[]
+        device_id=''
+        update=[]
+        data_list=[]
+        store=request.POST.get('update_store','')
+        #print ("updata_store=",store)
+        files=request.FILES.getlist('updata_resource')
+        try:
+            for f in files:
+                file_path=os.path.join('files',f.name)
+                #update.append(f.name)
+                file=open(file_path, mode='wb+')
+                for chunk in f.chunks():
+                    file.write(chunk)
+                file.close()
+            updatecmd="success"
+            print (updatecmd)
+            device=Store.objects.filter(name=store).values('device_id')
+            for device_id in device:
+                deviceid=device_id['device_id']
+            device_id=json.dumps(deviceid)
+            print ('device_id=',device_id)
+            #updata_list=json.dumps(updata)
+        except Exception as e:
+            print (e)
+            updatecmd="failure"
+        return render(request, "software.html",
+                    {'updatecmd':json.dumps(updatecmd),"device_id":device_id,"data_list":data_list})
+        
+'''
+class ResourceView(View):
+    #login_url = '/login/'
+    #redirect_field_name = 'next'
+    def get(self, request):
+        all_region = RegionDict.objects.all()
+        data_list=[]
+        mqtt=Mqtt.objects.values("name","login_name","port","password","keepAlive")
+        for mqtt_data in mqtt:
+            #print (mqtt_data['name'])
+            host_name=mqtt_data['name']
+            username=mqtt_data['login_name']
+            password=mqtt_data['password']
+            port=mqtt_data['port']
+            keepAlive=mqtt_data['keepAlive']
+            #print (host_name,username,password,port,keepAlive)
+        return render(request, "resource.html",{"all_region":all_region,
+                                                "data_list":data_list,
+                                                "hostname":json.dumps(host_name),
+                                                "username":json.dumps(username),
+                                                "port":json.dumps(port),
+                                                "password":json.dumps(password),
+                                                "keepAlive":json.dumps(keepAlive),
+                                                })
+    #store = forms.CharField()
+    def post(self, request):
+        # 查找到所有的机构
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        #all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_city = CityDict.objects.all()
+        select_region=""
+        select_city=""
+        select_store=""
+
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        data_list=[]
+        region_id=request.POST.get('region',"")
+        city_id=request.POST.get('city',"")
+        store_id=request.POST.get('store',"")
+        if region_id=="":
+            return HttpResponse("请重新选择区域")
+        if city_id=="":
+            return HttpResponse("请重新选择城市")
+        if store_id=="":
+            return HttpResponse("请重新选择门店")
+
+        update = request.POST.getlist('inlineRadio')
+
+        #print (region_id,city_id,store_id,update)
+       
+        mqtt=Mqtt.objects.values("name","login_name","port","password","keepAlive")
+        for mqtt_data in mqtt:
+            #print (mqtt_data['name'])
+            host_name=mqtt_data['name']
+            username=mqtt_data['login_name']
+            password=mqtt_data['password']
+            port=mqtt_data['port']
+            keepAlive=mqtt_data['keepAlive']
+            #print (host_name,username,password,port,keepAlive)
+        
+        
+        #update=check_box_list.split(',')
+        #print('update=',update)
+        if "全部" not in city_id:
+            #region_select = all_region.filter(name=str(region_id)).values('id')
+            #city_select = all_city.filter(name=str(city_id)).values('id')
+            #for data in region_select:
+            #    region=data['id']
+            #for data in city_select:
+            #    city=data['id']
+            if "全部" not in store_id:
+                device_id = all_store.filter(name=str(store_id)).values('device_id')
+                #print (device_id)
+                if not device_id:
+                    return HttpResponse("请重新选择门店")
+                #for data in store_select:
+                #    device_id=data['device_id']
+                    
+            elif "全部" in store_id:
+                device_id = all_city.filter(name=str(city_id)).values('device_id')
+                #store=0
+        elif "全部" in city_id:
+            #region_select = all_region.filter(name=str(region_id)).values('id')
+            device_id = all_region.filter(name=str(region_id)).values('device_id')
+            #for data in region_select:
+            #    region=data['id']
+            #city=0
+            #store=0
+        #print (region_select,city_select,store_select)
+        #if region_id and city_id and store_id and date_from and date_to :
+        #if region_id and city_id and store_id :
+        #url_request="/device/resource/"+str(region)+"/"+str(city)+"/"+str(store)+"/"
+        #print (url_request)
+        #return redirect(url_request+"?inlineRadio="+str(check_box_list))
+        for device in device_id:
+            deviceid=device['device_id']
+        #print (deviceid)
+        files=request.FILES.getlist('updata_resource')
+        try:
+            for f in files:
+                file_path=os.path.join('update/'+str(deviceid),f.name)  #将文件存放到update/deviceid 目录
+                #update.append(f.name)
+                #print (file_path)
+                file=open(file_path, mode='wb+')
+                for chunk in f.chunks():
+                    file.write(chunk)
+                file.close()
+            updatecmd="success1"
+            
+            #print (updatecmd)
+        except Exception as e:
+            print (e)
+            updatecmd="failure"
+        return render(request, "resource.html",
+                    {"data_list":data_list,
+                     "updata_list":update,
+                     "all_region":all_region,
+                     "device_id":json.dumps(deviceid),
+                     "hostname":json.dumps(host_name),
+                     "username":json.dumps(username),
+                     "port":json.dumps(port),
+                     "password":json.dumps(password),
+                     "keepAlive":json.dumps(keepAlive),
+                     #"update_data":json.dumps(list(update)),
+                     #"store":store_id,
+                     })
+                     
+    def toDicts(objs):
+            obj_arr=[]
+            for o in objs:
+                    obj_arr.append(o.toDict())
+            return obj_arr
+'''
+class ResourceAuthView(View):
+    #login_url = '/login/'
+    #redirect_field_name = 'next'
+    def get(self, request,param1,param2,param3):
+        num1=param1
+        num2=param2
+        num3=param3
+        update_list=""
+        update_data=[]
+        update=[]
+        str=""
+        check_box_list=request.GET.get('inlineRadio',"")
+        print ("check_box_list=",check_box_list)
+        #for update in check_box_list:
+        update_list=check_box_list.strip(']')
+        update_list=update_list.strip('[')
+        update_list=update_list.strip(' ')
+        print (update_list)
+        update_data=update_list.split(',')
+        print ('update_list=',update_data)
+        for x in range(len(update_data)):
+            str=update_data[x]
+            str=str.strip(' ')
+            data=int(str[1])
+            update.append(data)
+        print ("update_data=",update)
+        all_region = RegionDict.objects.all()
+        # 查找到所有的省
+        #all_province= ProvinceDict.objects.all()
+        # 取出所有的城市
+        all_city = CityDict.objects.all()
+        # 热门机构,如果不加负号会是有小到大
+        # hot_orgs = all_orgs.order_by("-click_nums")[:3]
+        # 查找所有门店
+        all_store = Store.objects.all()
+        region_id = all_region.filter(id=num1).values("name")
+        if num2!='0':
+            city_id = all_city.filter(id=num2).values("name")
+        elif num2=='0':
+            city_id=0
+        if num3!='0':
+            store_id = all_store.filter(id=num3).values("name","city_id")
+        elif num3=='0':
+            store_id=0
+        print (region_id,city_id,store_id)
+        #series1=json.dumps(list(check_box_list))
+        
+        data_list=[]
+        store_data=[]
+        city_data=[]
+        region_data=[]
+        if city_id!=0 and store_id!=0:
+            data_list=Store.objects.filter(name=store_id.values('name')).values('name','cityname','regionname')
+            device_id=Store.objects.filter(name=store_id.values('name')).values('device_id')
+            
+        elif city_id!=0 and store_id==0:  #城市全部门店
+            data_list=Store.objects.filter(cityname=city_id.values('name')).values('name','cityname','regionname')
+            device_id=CityDict.objects.filter(name=city_id.values('name')).values('device_id')
+            print (data_list,device_id)
+        elif city_id==0 and store_id==0:
+            data_list=Store.objects.filter(regionname=region_id.values('name')).values('name','cityname','regionname')
+            device_id=RegionDict.objects.filter(name=region_id.values('name')).values('device_id')
+        print (device_id)
+        return render(request, "resource.html",
+                    {"data_list":data_list,
+                     "update_list":list(update),
+                     #'num':len(update),
+                     #"device_id":json.dumps(list(device_id)),
+                     "update_data":json.dumps(list(update)),
+                     #"store":store_id,
+                     })
+                     
+    def toDicts(objs):
+            obj_arr=[]
+            for o in objs:
+                    obj_arr.append(o.toDict())
+            return obj_arr
+        
+
+
+class ResourceUpdateView(View):
+    #login_url = '/login/'
+    #redirect_field_name = 'next'
+    #def get(self, request):
+    #    all_region = RegionDict.objects.all()
+    #    data_list=[]
+    #    return render(request, "resource.html",{"all_region":all_region,"data_list":data_list})
+    
+    def post(self, request):
+        deviceid=[]
+        device_id=''
+        update=[]
+        data_list=[]
+        update_data = request.POST.get('update_list','')
+        print (update_data)
+        region=request.POST.get('update_region','')
+        city=request.POST.get('update_city','')
+        store=request.POST.get('update_store','')
+        print ("updata_region=",region)
+        print ("updata_city=",city)
+        print ("updata_store=",store)
+        files=request.FILES.getlist('updata_resource')
+        try:
+            for f in files:
+                file_path=os.path.join('files',f.name)
+                #update.append(f.name)
+                file=open(file_path, mode='wb+')
+                for chunk in f.chunks():
+                    file.write(chunk)
+                file.close()
+            updatecmd="success"
+            print (updatecmd)
+            device=Store.objects.filter(name=store).values('device_id')
+            for device_id in device:
+                deviceid=device_id['device_id']
+            device_id=json.dumps(deviceid)
+            print ('device_id=',device_id)
+            #updata_list=json.dumps(updata)
+        except Exception as e:
+            print (e)
+            updatecmd="failure"
+        return render(request, "resource.html",
+                    {'updatecmd':json.dumps(updatecmd),"device_id":device_id,'updata_list':update_data,"data_list":data_list})
+    
+    
+                
+    def toDicts(objs):
+            obj_arr=[]
+            for o in objs:
+                    obj_arr.append(o.toDict())
+            return obj_arr
+'''
+class JsonCustomEncoder(json.JSONEncoder):
+    def default(self, field):
+        if isinstance(field, datetime):
+            return field.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(field, date):
+            return field.strftime('%Y-%m-%d')
+        else:
+            return json.JSONEncoder.default(self, field)
+        
+def mac_data():
+    #计算当天wifi探针数据
+    #now = datetime.datetime.now()
+    now_time =time.strftime('%Y-%m-%d',time.localtime(time.time())).split('-')
+    year=now_time[0]
+    month=now_time[1]
+    day=str(int(now_time[2]))
+    duration=[]
+    duration5=[]
+    data=[]
+    mac=[]
+    mid=[]
+    u_dict=[]
+    distance=[]
+    u_list=[]
+    maclist1=[]
+    maclist5=[]
+    mid_list=[]
+    data_list=[]
+    u_time=[]
+    u_time5=[]
+    u_distance=[]
+    u_distance5=[]
+    mac_list1=[]
+    mac_list5=[]
+    mac_index=0
+    mac_str=""
+    wifi_id=[]
+    wifi_id5=[]
+    id=[]
+    n1=0
+    n5=0
+    n=[]
+    n5=[]
+    c_time=[]
+    store_name=[]
+    device_id_add=[]
+    wifi_id_add=[]
+    store_add=[]
+    city_id=[]
+    city=[]
+    city_name=[]
+    province_id=[]
+    province=[]
+    provinceid=[]
+    province_name=[]
+    region_id=[]
+    region=[]
+    region_dict_name=[]
+    region_name=[]
+    store_city_id=[]
+    range1=[]
+    range3=[]
+    province_device=ProvinceDict.objects.values("id","name","region_id")
+    for province_data in province_device:
+        provinceid.append(province_data['id'])
+        province.append(province_data['name'])
+    #print("province=",province)
+    city_device=CityDict.objects.values("id","name","region_id","province_id")
+    
+    for city_data in city_device:
+        city_id.append(city_data['id'])
+        city.append(city_data['name'])
+        region_id.append(city_data['region_id'])
+        province_id.append(city_data['province_id'])
+    #print ("province_id=",province_id)
+    region_device=RegionDict.objects.values("id","name")
+    for region_data in region_device:
+        region.append(region_data['id'])
+        region_dict_name.append(region_data['name'])
+    store_device=Store.objects.values("name","device_id","wifi_id","city_id")
+    #print ("store_device=",store_device)
+    for store_add in store_device:
+        if store_add['wifi_id'] != "":
+            store_name.append(store_add['name'])
+            device_id_add.append(store_add['device_id'])
+            wifi_id_add.append(store_add['wifi_id'])
+            store_city_id.append(store_add['city_id'])
+            city_index=city_id.index(store_add['city_id'])   #获取city 的index
+            city_name.append(city[city_index])   #将city name加入list
+            province_id_select=province_id[city_index]
+            #print ("province_id_select=",province_id_select)
+            province_index=provinceid.index(province_id_select)
+            province_name.append(province[province_index])
+            region_id_select=region_id[city_index]  #根据所选的city确定citydcit的region_id
+            region_index=region.index(region_id_select)  #根据所选的citydict中的region_id
+            region_name.append(region_dict_name[region_index])   #确定regiondcit中的name
+    #start = now - datetime.timedelta(hours=23, minutes=59, seconds=59)
+    #print ("STORE=",store_name,"CITY=",city_name,"PROVINCE=",province_name,"REGION=",region_name)
+    master=MasterInfo.objects.values()
+    for x in master:
+        mid.append(x['mid'])
+    
+    detail_data=DetailInfo.objects.filter(utime__year=year,utime__month=month,utime__day=day).values("mac","range","mid","utime").order_by('utime')
+    #获取当天"mac","range","mid","utime"，按时间倒序排列，输出为字典格式
+    #detail_data1=detail_data.values("mac","range","mid","utime").order_by("mid")
+    #print (detail_data.values())
+    #for data1 in detail_data:   #字典遍历
+    #    u_dict=list(data1.values())    
+        #if u_dict[3]==str("'"+mid[0]+"'"):
+    #    print (u_dict)
+    
+    
+    for data in detail_data:   #字典遍历
+        mac.append(data['mac'])
+        distance.append(data['range'])
+        id.append(data['mid'])
+        c_time.append(data['utime'])
+        
+    #print (id)
+    for i in range(0,len(mid)):
+        data_list.append([])
+        
+        for j in range(0,len(mac)):
+            data_list[i].append(" ")
+            #duration.append(0)
+    #print (data_list)
+    #print(c_time)
+    #for y in range(num):
+    #    print (mac[y])
+    #print(mac)
+    #print(distance)
+    #print(id)
+    #print(c_time)
+    for i in range(0,len(mac)):
+        if float(distance[i]) <=1.6:
+            mid_index=mid.index(id[i])
+            mac_str=mac[i][:-3]
+            #print(mac_str)
+            #print(distance)
+            if mac_str  not in maclist1:
+                maclist1.append(mac_str)  #探测范围3m内的mac列表
+                u_time.append(c_time[i])   #探测范围3m内MAC的采集时间
+                u_distance.append(distance[i])  #探测范围3m内MAC的距离
+                duration.append(0)   #探测范围3m内MAC的停留时间
+                range1.append(0)
+            elif mac_str in maclist1:
+                mac_index=maclist1.index(mac_str)
+                duration[mac_index]=(c_time[i]-u_time[mac_index]).total_seconds()#3m内计算停留时间
+                u_time[mac_index]=c_time[i]
+                if float(duration[mac_index]) <=2 :   #10秒采集1次数据，停留时间间隔小于15秒，说明在两个采集单位时间内在3米以内，判定为有效人流量
+                    #print("duration[mac_index]=",duration[mac_index])
+                    range1[mac_index]=range1[mac_index]+1  #每隔1秒采集1次，
+                    #print("range1[i]=",range1[mac_index])
+                    if range1[mac_index]>=10:
+                        if mac_str  not in mac_list1:
+                            mac_list1.append(mac_str)  #3m内超过计时单位的mac
+                            wifi_id.append(id[i])  #3m内超过计时单位的mid
+                            #print("mac_list1=",mac_list1)
+                            n.append(0)  #3m内超过计时单位的列表
+                          
+                        elif mac_str  in mac_list1:
+                            mac_index2=mac_list1.index(mac_str)
+                            n[mac_index2]=n[mac_index2]+1  #3m内超过计时单位的列表累加
+                
+                
+                #elif float(duration[mac_index]) >2:  #如果停留时间大于15秒
+                    #range1[i]=0
+                    '''
+                    if mac_str  in mac_list1:
+                        index_mac_str=mac_list1.index(mac_str)
+                        del(mac_list1[index_mac_str])
+                        del(wifi_id[index_mac_str])
+                        del(n[index_mac_str])
+                    '''
+        '''
+        elif float(distance[i]) >3  : 
+            mid_index=mid.index(id[i])
+            mac_str=mac[i][:-3]
+            if mac_str in maclist1:   
+                mac_index1=maclist1.index(mac_str)
+                del(maclist1[mac_index1])  #超出探测距离3m后删除该mac
+                del(u_time[mac_index1])   #超出探测距离3m后删除该mac的采集时间
+                del(duration[mac_index1])  #超出探测距离3m后删除该mac的停留时间 
+                del(u_distance[mac_index1])  #超出探测距离3m后删除该mac的距离
+            if mac_str in mac_list1:
+                mac_index=mac_list1.index(mac_str)
+                del(n[mac_index])   #超出探测距离3m后删除该mac的计时单位
+                del(mac_list1[mac_index])  #超出探测距离3m后删除达到停留时间的mac 
+                del(wifi_id[mac_index])   #超出探测距离3m后删除达到停留时间的mid
+        '''        
+        if (float(distance[i]) <=3) : #and float(distance[i]) >3):   #如果距离大于3米 <5米
+            mid_index5=mid.index(id[i])
+            mac_str5=mac[i][:-3]
+            if mac_str5  not in maclist5:
+                maclist5.append(mac_str5)  #探测3~5米范围内的mac列表
+                wifi_id5.append(id[i])
+            elif mac_str5  in mac_list5:
+                    mac_index5=mac_list5.index(mac_str5)
+                    n5[mac_index5]=n5[mac_index5]+1  #3~5m内超过计时单位的列表累加
+                #u_time5.append(c_time[i])   #探测3~5m范围内MAC的采集时间
+                #u_distance5.append(distance[i])  #探测3~5m范围内MAC的距离
+                #duration5.append(0)   #探测3~5m范围内MAC的停留时间
+            #elif mac_str5 in maclist5:
+                #mac_index5=maclist5.index(mac_str5)
+                #duration5[mac_index5]=(c_time[i]-u_time5[mac_index5]).total_seconds()#计算3~5m停留时间
+                #u_time5[mac_index5]=c_time[i]
+                #if float(duration5[mac_index5]) <15 and float(duration5[mac_index5])>5:
+                    '''
+                    if mac_str5  not in mac_list5:
+                        mac_list5.append(mac_str5)  #3~5m超过计时单位的mac
+                        wifi_id5.append(id[i])  #3~5m超过计时单位的mid
+                        n5.append(0)  #3~5m超过计时单位的列表
+                    
+                    elif mac_str5  in mac_list5:
+                        mac_index5=mac_list5.index(mac_str5)
+                        n5[mac_index5]=n5[mac_index5]+1  #3~5m内超过计时单位的列表累加
+                        '''
+        '''
+        elif float(distance[i]) >5 : 
+            mid_index5=mid.index(id[i])
+            mac_str5=mac[i][:-3]
+            if mac_str5 in maclist5:   
+                mac_index5=maclist5.index(mac_str5)
+                del(maclist5[mac_index5])  #超出探测距离5m后删除该mac
+                del(u_time5[mac_index5])   #超出探测距离5m后删除该mac的采集时间
+                del(duration5[mac_index5])  #超出探测距离5m后删除该mac的停留时间 
+                del(u_distance5[mac_index5])  #超出探测距离5m后删除该mac的距离
+            if mac_str5 in mac_list5:
+                mac_index5=mac_list5.index(mac_str5)
+                del(n5[mac_index5])   #超出探测距离5m后删除该mac的计时单位
+                del(mac_list5[mac_index5])  #超出探测距离5m后删除达到停留时间的mac 
+                del(wifi_id5[mac_index5])   #超出探测距离5m后删除达到停留时间的mid
+        '''        
+                
+    #存入数据库的mac_list5 wifi_id5 n5  mac_list1 wifi_id n
+    
+
+    #print (mac_list1,maclist1,duration,wifi_id,n)
+    #print (mac_list5,maclist5,duration5,wifi_id5,n5)
+    
+    for y in range(0,len(n)):
+        if n[y] <=1 :
+            wifi_id[y]="x"   
+    dic = collections.Counter(wifi_id)  #判断3米停留时间小于规定时间的个数
+    print ("n=",n)
+    print ("dic=",dic)
+    del dic["x"]   #去掉冗余
+    #print ("dic=",dic)
+    for y in range(0,len(n5)):
+        if n5[y] <=1 :
+            wifi_id5[y]="x"
+    dic5 = collections.Counter(wifi_id5)  #判断3米停留时间小于规定时间的个数
+
+    del dic5["x"]   #去掉冗余
+    #print ("dic5=",dic5)
+    date_last = str(now().date() + timedelta(days=-1)).split('-') #获取前一天时间
+    #print (date_last)
+    year_last=date_last[0]
+    month_last=date_last[1]
+    day_last=str(int(date_last[2]))
+    
+    '''
+    wifiprobe_last=wifiprobeData_day.objects.filter(add_time__year=year_last,add_time__month=month_last,add_time__day=day_last).values("wifi_3m_num_total","wifi_1m_num_total","store","device_id").order_by('add_time')
+    for wifiprobe_data_last in wifiprobe_last:   #字典遍历
+        wifi1_total_last.append(wifiprobe_data_last['wifi_1m_num_total'])
+        wifi3_total_last.append(wifiprobe_data_last['wifi_3m_num_total'])
+        wifi_store.append(wifiprobe_data_last['store'])
+        wifi_id.append(wifiprobe_data_last['device_id'])
+    print ("wifi_store=",wifi_store)
+    '''
+    store_di=store_name[:]
+    city_di=city_name[:]
+    region_di=region_name[:]
+    province_di=province_name[:]
+    #print ("store_di=",store_di)
+    #print ("city_di=",city_di)
+    #print ("region_di=",region_di)
+    device_di=device_id_add[:]
+    
+    if dic5:
+        for key in dic5:
+            if key in dic.keys():
+                num1=dic[key]
+                
+            else:
+                num1=0
+            key_index=wifi_id_add.index(str(key))
+            #print ("key_index=",key_index)
+            
+            store_select=store_name[key_index]  #判断wifi设备id对应的门店
+            wifiid_select=wifi_id_add[key_index]
+            city_select=city_name[key_index]
+            province_select=province_name[key_index]
+            region_select=region_name[key_index]
+            #print ("device_di[x]=",device_di[key_index])
+            #print ("store_select=",store_select)
+            #print ("wifiid_select=",wifiid_select)
+            wifi3_total=wifiprobeData_day.objects.filter(device_id=key).aggregate(nums=Sum('wifi_3m_num'))  #聚合方法计算累计3m
+            wifi1_total=wifiprobeData_day.objects.filter(device_id=key).aggregate(nums1=Sum('wifi_1m_num'))  #聚合方法计算累计1m 
+            #print ("wifi3_total=",wifi3_total)
+            #print ("wifi1_total=",wifi1_total)
+            if wifi3_total['nums']==None:
+                wifi3_total['nums']=0
+            if wifi1_total['nums1']==None:
+                wifi1_total['nums1']=0 
+            wifiprobeData_day.objects.create(device_id=device_di[key_index],wifi_3m_num=dic5[key],wifi_1m_num=num1,store=store_select,city=city_select,region=region_select,province=province_select,wifi_3m_num_total=wifi3_total['nums'],wifi_1m_num_total=wifi1_total['nums1'])
+            del(store_di[key_index])
+            del(device_di[key_index])
+            del(city_di[key_index])
+            del(province_di[key_index])
+            del(region_di[key_index])
+        if store_di:
+            for x in range(len(store_di)):
+                #print ("device_di[x]=",device_di[x])
+                wifi3_total=wifiprobeData_day.objects.filter(device_id=device_di[x]).aggregate(nums=Sum('wifi_3m_num'))  #聚合方法计算累计3m
+                if wifi3_total['nums']==None:
+                    wifi3_total['nums']=0
+                wifi1_total=wifiprobeData_day.objects.filter(device_id=device_di[x]).aggregate(nums1=Sum('wifi_1m_num'))  #聚合方法计算累计1m 
+                if wifi1_total['nums1']==None:
+                    wifi1_total['nums1']=0
+                wifiprobeData_day.objects.create(device_id=device_di[x],wifi_3m_num=0,wifi_1m_num=0,store=store_di[x],city=city_di[x],region=region_di[x],province=province_di[x],wifi_3m_num_total=wifi3_total['nums'],wifi_1m_num_total=wifi1_total['nums1'])
+    
+    
+    
+    else:
+        for x in range(len(store_name)):
+            #print ("device_id_add[x]=",device_id_add[x])
+            wifi3_total=wifiprobeData_day.objects.filter(device_id=device_id_add[x]).aggregate(nums=Sum('wifi_3m_num'))  #聚合方法计算累计3m
+            if wifi3_total['nums']==None:
+                wifi3_total['nums']=0
+            wifi1_total=wifiprobeData_day.objects.filter(device_id=device_id_add[x]).aggregate(nums1=Sum('wifi_1m_num'))  #聚合方法计算累计1m 
+            if wifi1_total['nums1']==None:
+                wifi1_total['nums1']=0
+            wifiprobeData_day.objects.create(device_id=device_id_add[x],wifi_3m_num=0,wifi_1m_num=0,store=store_name[x],city=city_name[x],region=region_name[x],province=province_name[x],wifi_3m_num_total=wifi3_total['nums'],wifi_1m_num_total=wifi1_total['nums1'])
+    #if store_select in wifi_store:
+        '''
+        if wifi_id_add[key_index] in wifi_id:
+            store_index=wifi_id.index(wifi_id_add[key_index])
+            wifi1_total=num1+wifi1_total_last[store_index]
+            wifi3_total=dic5[key]+wifi3_total_last[store_index]
+            #print (wifi3_total)
+            print ("key=",key)
+            wifiprobeData_day.objects.create(device_id=key,wifi_3m_num=dic5[key],wifi_1m_num=num1,store=store_select,wifi_3m_num_total=wifi3_total,wifi_1m_num_total=wifi1_total)
+            del(wifi1_total_last[store_index])
+            del(wifi3_total_last[store_index])
+            del(wifi_store[store_index])
+            del(wifi_id[store_index])
+        else:
+            wifiprobeData_day.objects.create(device_id=wifi_id_add[key_index],wifi_3m_num=0,wifi_1m_num=0,store=wifi_store[x],wifi_3m_num_total=wifi3_total_last[x],wifi_1m_num_total=wifi1_total_last[x])  #存入当天数据
+    for x in range(len(wifi_store)):
+        #print (len(wifi_store))
+        index_store=store_name.index(wifi_store[x])
+        print ("wifi_store[x]=",wifi_store[x])
+        wifiprobeData_day.objects.create(device_id=wifi_id[x],wifi_3m_num=0,wifi_1m_num=0,store=wifi_store[x],wifi_3m_num_total=wifi3_total_last[x],wifi_1m_num_total=wifi1_total_last[x])  #存入当天数据
+        '''
+      
+    duration.clear()
+    duration5.clear()
+    maclist1.clear()
+    maclist5.clear()
+    u_time.clear()
+    u_time5.clear()
+    u_distance.clear()
+    u_distance5.clear()
+    mac_list1.clear()
+    mac_list5.clear()
+    n.clear()
+    n5.clear()
+    wifi_id.clear()
+    wifi_id5.clear()
+    
+    
+    satisfy_data=[]
+    satisfy_day=[]
+    satis_data=[]
+    good_day=[]
+    unsatisfy_day=[]
+    sy_device_id=[]
+    device_id_satisfy_day=[]
+    device_id_id=device_id_add[:]
+    device_sa=[]
+    execllect=[]
+    good=[]
+    unsatisfy=[]
+    store_sa=store_name[:]
+    city_sa=city_name[:]
+    region_sa=region_name[:]
+    province_sa=province_name[:]
+    #计算当天满意度数据
+    #从实时数据库SatisfactionData获取实时数据
+    satisfy_data=SatisfactionData.objects.filter(add_time__year=year,add_time__month=month,add_time__day=day).values("excellent_num","good_num","unsatisfy_num","device_id").order_by('add_time')
+    #print ("satisfy_data=",satisfy_data)
+    if satisfy_data :
+        for satis_data in satisfy_data:   #字典遍历
+            execllect.append(satis_data['excellent_num'])
+            good.append(satis_data['good_num'])
+            unsatisfy.append(satis_data['unsatisfy_num'])
+            sy_device_id.append(satis_data['device_id'])
+            #print ("sy_device_id=",sy_device_id)
+        for x in range(len(sy_device_id)):
+            if sy_device_id[x] not in device_id_satisfy_day:
+                device_id_satisfy_day.append(sy_device_id[x])
+                satisfy_day.append(execllect[x])
+                good_day.append(good[x])
+                unsatisfy_day.append(unsatisfy[x])
+            elif sy_device_id[x] in device_id_satisfy_day:
+                satisfy_index=device_id_satisfy_day.index(sy_device_id[x])
+                satisfy_day[satisfy_index]=satisfy_day[satisfy_index]+execllect[x]
+                good_day[satisfy_index]=good_day[satisfy_index]+good[x]
+                unsatisfy_day[satisfy_index]=unsatisfy_day[satisfy_index]+unsatisfy[x]
+        day_time=now().date() + timedelta(days=0)  #获取今天时间       date = now().date() + timedelta(days=-1) #昨天
+        time_stamp=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))#获取系统当前时间戳
+        #print ("device_id_satisfy_day=",device_id_satisfy_day)
+        #print ("device_id_id=",device_id_id)
+        for i in range(len(device_id_satisfy_day)):
+            device_id_index=device_id_id.index(device_id_satisfy_day[i])
+            store_select=store_name[device_id_index]
+            city_select=city_name[device_id_index]
+            region_select=region_name[device_id_index]
+            province_select=province_name[device_id_index]
+            device_select=device_id_id[device_id_index]
+            device_sa.append(device_select)
+            #print ("device_select=",device_select)
+            excellent_num_total=SatisfactionData_day.objects.filter(device_id=device_select).aggregate(nums1=Sum('excellent_num'))  #聚合方法计算累计excellent_num
+            good_num_total=SatisfactionData_day.objects.filter(device_id=device_select).aggregate(nums2=Sum('good_num'))  #聚合方法计算累计good_num 
+            unsatisfy_num_total=SatisfactionData_day.objects.filter(device_id=device_select).aggregate(nums3=Sum('unsatisfy_num'))  #聚合方法计算累计unsatisfy_num
+            SatisfactionData_day.objects.create(device_id=device_select,name=device_id_satisfy_day[i],excellent_num=satisfy_day[i],good_num=good_day[i],unsatisfy_num=unsatisfy_day[i],excellent_num_total=excellent_num_total['nums1'],good_num_total=good_num_total['nums2'],unsatisfy_num_total=unsatisfy_num_total['nums3'],add_time= time_stamp,time=day_time,store=store_select,city=city_select,region=region_select,province=province_select)  #存入当天数据
+        for x in range(len(device_sa)):
+            if device_sa[x] in device_id_id:
+                index_device=device_id_id.index(device_sa[x])
+                del(device_id_id[index_device])
+                del(store_sa[index_device])
+                del(city_sa[index_device])
+                del(region_sa[index_device])
+                del(province_sa[index_device])
+        #print ("device_id_id=",device_id_id)
+        for x in range(len(device_id_id)):
+            #print ("device_id_id[x]=",device_id_id[x])
+            excellent_num_total=SatisfactionData_day.objects.filter(device_id=device_id_id[x]).aggregate(nums1=Sum('excellent_num'))  #聚合方法计算累计excellent_num
+            #print ("excellent_num_total=",excellent_num_total)
+            good_num_total=SatisfactionData_day.objects.filter(device_id=device_id_id[x]).aggregate(nums2=Sum('good_num'))  #聚合方法计算累计good_num 
+            #print ("good_num_total=",good_num_total)
+            unsatisfy_num_total=SatisfactionData_day.objects.filter(device_id=device_id_id[x]).aggregate(nums3=Sum('unsatisfy_num'))  #聚合方法计算累计unsatisfy_num
+            #print ("unsatisfy_num_total=",unsatisfy_num_total)
+            if excellent_num_total['nums1']==None:
+                excellent_num_total['nums1']=0
+            if good_num_total['nums2']==None:
+                good_num_total['nums2']=0
+            if unsatisfy_num_total['nums3']==None:
+                unsatisfy_num_total['nums3']=0
+            SatisfactionData_day.objects.create(device_id=device_id_id[x],name=device_id_id[x],excellent_num=satisfy_day[i],good_num=good_day[i],unsatisfy_num=unsatisfy_day[i],excellent_num_total=excellent_num_total['nums1'],good_num_total=good_num_total['nums2'],unsatisfy_num_total=unsatisfy_num_total['nums3'],add_time= time_stamp,time=day_time,store=store_sa[x],city=city_sa[x],region=region_sa[x],province=province_sa[x])  #存入当天数据
+    else:
+        
+        for x in range(len(device_id_add)):
+            
+            #print ("device_id_add[x]=",device_id_add[x])
+            excellent_num_total=SatisfactionData_day.objects.filter(device_id=device_id_add[x]).aggregate(nums1=Sum('excellent_num'))  #聚合方法计算累计excellent_num
+            #print ("excellent_num_total=",excellent_num_total)
+            good_num_total=SatisfactionData_day.objects.filter(device_id=device_id_add[x]).aggregate(nums2=Sum('good_num'))  #聚合方法计算累计good_num 
+            #print ("good_num_total=",good_num_total)
+            unsatisfy_num_total=SatisfactionData_day.objects.filter(device_id=device_id_add[x]).aggregate(nums3=Sum('unsatisfy_num'))  #聚合方法计算累计unsatisfy_num
+            #print ("unsatisfy_num_total=",unsatisfy_num_total)
+            if excellent_num_total['nums1']==None:
+                excellent_num_total['nums1']=0
+            if good_num_total['nums2']==None:
+                good_num_total['nums2']=0
+            if unsatisfy_num_total['nums3']==None:
+                unsatisfy_num_total['nums3']=0
+            day_time=now().date() + timedelta(days=0)  #获取今天时间       date = now().date() + timedelta(days=-1) #昨天
+            time_stamp=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))#获取系统当前时间戳
+            
+            SatisfactionData_day.objects.create(device_id=device_id_add[x],name=device_id_add[x],excellent_num=0,good_num=0,unsatisfy_num=0,excellent_num_total=excellent_num_total['nums1'],good_num_total=good_num_total['nums2'],unsatisfy_num_total=unsatisfy_num_total['nums3'],add_time= time_stamp,time=day_time,store=store_name[x],city=city_name[x],region=region_name[x],province=province_name[x])  #存入当天数据
+    
+    
+    excellent_add=[]
+    good_add=[]
+    unsatisfy_add=[]
+    device_satisfy=[]
+    store_name_add=[]
+    #device_id_add=[]
+    wifi3=[]
+    wifi1=[]
+    wifi3_p=[]
+    wifi1_p=[]
+    store_wifi=[]
+    ex=[]
+    go=[]
+    un=[]
+    store_p=[]
+    city=[]
+    province=[]
+    wifi1_total=[]
+    wifi3_total=[]
+    ex1=[]
+    go1=[]
+    un1=[]
+    ex_total=[]
+    go_total=[]
+    un_total=[]
+    sati=SatisfactionData_day.objects.filter(time__year=year,time__month=month,time__day=day).values("excellent_num","good_num","unsatisfy_num","store","city","region","excellent_num_total","good_num_total","unsatisfy_num_total")
+    for sa_data in sati:
+        store_name_add.append(sa_data['store'])
+        excellent_add.append(sa_data['excellent_num'])
+        good_add.append(sa_data['good_num'])
+        unsatisfy_add.append(sa_data['unsatisfy_num'])
+    
+    for sa_city in sati:
+        if sa_city['city'] not in city:
+            ex1.append(int(sa_city['excellent_num']))
+            go1.append(int(sa_city['good_num']))
+            un1.append(int(sa_city['unsatisfy_num']))
+            ex_total.append(int(sa_city['excellent_num_total']))
+            go_total.append(int(sa_city['good_num_total']))
+            un_total.append(int(sa_city['unsatisfy_num_total']))
+            city.append(sa_city['city'])
+        elif sa_city['city'] in city:
+            sa_index=city.index(sa_city['city'])
+            ex1[sa_index]=ex1[sa_index]+int(sa_city['excellent_num'])
+            go1[sa_index]=go1[sa_index]+int(sa_city['good_num'])
+            un1[sa_index]=un1[sa_index]+int(sa_city['unsatisfy_num'])
+            ex_total[sa_index]=ex_total[sa_index]+int(sa_city['excellent_num_total'])
+            go_total[sa_index]=go_total[sa_index]+int(sa_city['good_num_total'])
+            un_total[sa_index]=un_total[sa_index]+int(sa_city['unsatisfy_num_total'])
+    for x in range(len(city)):
+        region_index=city_name.index(city[x])
+        SatisfactionData_day_city.objects.create(excellent_num=ex1[x],good_num=go1[x],unsatisfy_num=un1[x],excellent_num_total=ex_total[x],good_num_total=go_total[x],unsatisfy_num_total=un_total[x],add_time= time_stamp,time=day_time,city=city[x],region=region_name[region_index],province=province_name[region_index])
+    
+    excellent_add=[]
+    good_add=[]
+    unsatisfy_add=[]
+    device_satisfy=[]
+    store_name_add=[]
+    #device_id_add=[]
+    wifi3=[]
+    wifi1=[]
+    wifi3_p=[]
+    wifi1_p=[]
+    store_wifi=[]
+    ex=[]
+    go=[]
+    un=[]
+    store_p=[]
+    city=[]
+    wifi1_total=[]
+    wifi3_total=[]
+    ex1=[]
+    go1=[]
+    un1=[]
+    ex_total=[]
+    go_total=[]
+    un_total=[]
+    region=[]
+    province=[]
+    sati_province=SatisfactionData_day_city.objects.filter(time__year=year,time__month=month,time__day=day).values("excellent_num","good_num","unsatisfy_num","region","province","excellent_num_total","good_num_total","unsatisfy_num_total")
+    for sa_province in sati_province:
+        if sa_province['province'] not in province:
+            ex1.append(int(sa_province['excellent_num']))
+            go1.append(int(sa_province['good_num']))
+            un1.append(int(sa_province['unsatisfy_num']))
+            ex_total.append(int(sa_province['excellent_num_total']))
+            go_total.append(int(sa_province['good_num_total']))
+            un_total.append(int(sa_province['unsatisfy_num_total']))
+            province.append(sa_province['province'])
+        elif sa_province['region'] in province:
+            sa_index=province.index(sa_province['province'])
+            ex1[sa_index]=ex1[sa_index]+int(sa_province['excellent_num'])
+            go1[sa_index]=go1[sa_index]+int(sa_rprovince['good_num'])
+            un1[sa_index]=un1[sa_index]+int(sa_province['unsatisfy_num'])
+            ex_total[sa_index]=ex_total[sa_index]+int(sa_province['excellent_num_total'])
+            go_total[sa_index]=go_total[sa_index]+int(sa_province['good_num_total'])
+            un_total[sa_index]=un_total[sa_index]+int(sa_province['unsatisfy_num_total'])
+    print("province=",province)
+    for x in range(len(province)):
+        if province[x]!="":
+            region_index=province_name.index(province[x])
+            SatisfactionData_day_province.objects.create(excellent_num=ex1[x],good_num=go1[x],unsatisfy_num=un1[x],excellent_num_total=ex_total[x],good_num_total=go_total[x],unsatisfy_num_total=un_total[x],add_time= time_stamp,time=day_time,region=region_name[region_index],province=province[x])
+    
+    
+    excellent_add=[]
+    good_add=[]
+    unsatisfy_add=[]
+    device_satisfy=[]
+    store_name_add=[]
+    #device_id_add=[]
+    wifi3=[]
+    wifi1=[]
+    wifi3_p=[]
+    wifi1_p=[]
+    store_wifi=[]
+    ex=[]
+    go=[]
+    un=[]
+    store_p=[]
+    city=[]
+    wifi1_total=[]
+    wifi3_total=[]
+    ex1=[]
+    go1=[]
+    un1=[]
+    ex_total=[]
+    go_total=[]
+    un_total=[]
+    region=[]
+    sati_region=SatisfactionData_day_city.objects.filter(time__year=year,time__month=month,time__day=day).values("excellent_num","good_num","unsatisfy_num","region","excellent_num_total","good_num_total","unsatisfy_num_total")
+    for sa_region in sati_region:
+        if sa_region['region'] not in region:
+            ex1.append(int(sa_region['excellent_num']))
+            go1.append(int(sa_region['good_num']))
+            un1.append(int(sa_region['unsatisfy_num']))
+            ex_total.append(int(sa_region['excellent_num_total']))
+            go_total.append(int(sa_region['good_num_total']))
+            un_total.append(int(sa_region['unsatisfy_num_total']))
+            region.append(sa_region['region'])
+        elif sa_region['region'] in region:
+            sa_index=region.index(sa_region['region'])
+            ex1[sa_index]=ex1[sa_index]+int(sa_region['excellent_num'])
+            go1[sa_index]=go1[sa_index]+int(sa_region['good_num'])
+            un1[sa_index]=un1[sa_index]+int(sa_region['unsatisfy_num'])
+            ex_total[sa_index]=ex_total[sa_index]+int(sa_region['excellent_num_total'])
+            go_total[sa_index]=go_total[sa_index]+int(sa_region['good_num_total'])
+            un_total[sa_index]=un_total[sa_index]+int(sa_region['unsatisfy_num_total'])
+    for x in range(len(region)):
+        SatisfactionData_day_region.objects.create(excellent_num=ex1[x],good_num=go1[x],unsatisfy_num=un1[x],excellent_num_total=ex_total[x],good_num_total=go_total[x],unsatisfy_num_total=un_total[x],add_time= time_stamp,time=day_time,region=region[x])
+    
+    
+    
+    
+    
+    excellent_add=[]
+    good_add=[]
+    unsatisfy_add=[]
+    device_satisfy=[]
+    store_name_add=[]
+    #device_id_add=[]
+    wifi3=[]
+    wifi1=[]
+    wifi3_p=[]
+    wifi1_p=[]
+    store_wifi=[]
+    ex=[]
+    go=[]
+    un=[]
+    store_p=[]
+    city=[]
+    wifi1_total=[]
+    wifi3_total=[]
+    wifi_data=wifiprobeData_day.objects.filter(time__year=year,time__month=month,time__day=day).values("city","region","province","wifi_3m_num","wifi_1m_num","wifi_3m_num_total","wifi_1m_num_total")
+    day_time=now().date() + timedelta(days=0)  #获取今天时间       date = now().date() + timedelta(days=-1) #昨天
+    time_stamp=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))#获取系统当前时间戳
+    for wifi_city in wifi_data:
+        if wifi_city['city'] not in city:
+            wifi1.append(int(wifi_city['wifi_1m_num']))
+            wifi3.append(int(wifi_city['wifi_3m_num']))
+            wifi1_total.append(int(wifi_city['wifi_1m_num_total']))
+            wifi3_total.append(int(wifi_city['wifi_3m_num_total']))
+            city.append(wifi_city['city'])
+        elif wifi_city['city'] in city:
+            index_wifi=city.index(wifi_city['city'])
+            wifi1[index_wifi]=wifi1[index_wifi]+int(wifi_city['wifi_1m_num'])
+            wifi3[index_wifi]=wifi3[index_wifi]+int(wifi_city['wifi_3m_num'])
+            wifi1_total[index_wifi]=wifi1_total[index_wifi]+int(wifi_city['wifi_1m_num_total'])
+            wifi3_total[index_wifi]=wifi3_total[index_wifi]+int(wifi_city['wifi_3m_num_total'])
+    for x in range(len(city)):
+        region_index=city_name.index(city[x])
+        wifiprobeData_day_city.objects.create(wifi_1m_num=wifi1[x],wifi_3m_num=wifi3[x],wifi_1m_num_total=wifi1_total[x],wifi_3m_num_total=wifi3_total[x],add_time= time_stamp,time=day_time,city=city[x],region=region_name[region_index],province=province_name[region_index])  #存入当天数据
+    
+    excellent_add=[]
+    good_add=[]
+    unsatisfy_add=[]
+    device_satisfy=[]
+    store_name_add=[]
+    #device_id_add=[]
+    wifi3=[]
+    wifi1=[]
+    wifi3_p=[]
+    wifi1_p=[]
+    store_wifi=[]
+    ex=[]
+    go=[]
+    un=[]
+    store_p=[]
+    city=[]
+    region=[]
+    province=[]
+    wifi1_total=[]
+    wifi3_total=[]
+    wifi_data=wifiprobeData_day_city.objects.filter(time__year=year,time__month=month,time__day=day).values("city","region","province","wifi_3m_num","wifi_1m_num","wifi_3m_num_total","wifi_1m_num_total")
+    for wifi_province in wifi_data:
+        if wifi_province['province'] not in province:
+            wifi1.append(int(wifi_province['wifi_1m_num']))
+            wifi3.append(int(wifi_province['wifi_3m_num']))
+            wifi1_total.append(int(wifi_province['wifi_1m_num_total']))
+            wifi3_total.append(int(wifi_province['wifi_3m_num_total']))
+            province.append(wifi_province['province'])
+        elif wifi_province['region'] in province:
+            index_wifi=province.index(wifi_province['province'])
+            wifi1[index_wifi]=wifi1[index_wifi]+int(wifi_province['wifi_1m_num'])
+            wifi3[index_wifi]=wifi3[index_wifi]+int(wifi_province['wifi_3m_num'])
+            wifi1_total[index_wifi]=wifi1_total[index_wifi]+int(wifi_province['wifi_1m_num_total'])
+            wifi3_total[index_wifi]=wifi3_total[index_wifi]+int(wifi_province['wifi_3m_num_total'])
+    for x in range(len(province)):
+        if province[x]!="":
+            region_index=province_name.index(province[x])
+            wifiprobeData_day_province.objects.create(wifi_1m_num=wifi1[x],wifi_3m_num=wifi3[x],wifi_1m_num_total=wifi1_total[x],wifi_3m_num_total=wifi3_total[x],add_time= time_stamp,time=day_time,region=region_name[region_index],province=province[x])  #存入当天数据
+    
+
+    
+    excellent_add=[]
+    good_add=[]
+    unsatisfy_add=[]
+    device_satisfy=[]
+    store_name_add=[]
+    #device_id_add=[]
+    wifi3=[]
+    wifi1=[]
+    wifi3_p=[]
+    wifi1_p=[]
+    store_wifi=[]
+    ex=[]
+    go=[]
+    un=[]
+    store_p=[]
+    city=[]
+    region=[]
+    province=[]
+    wifi1_total=[]
+    wifi3_total=[]
+    wifi_data=wifiprobeData_day_city.objects.filter(time__year=year,time__month=month,time__day=day).values("city","region","province","wifi_3m_num","wifi_1m_num","wifi_3m_num_total","wifi_1m_num_total")
+    for wifi_region in wifi_data:
+        if wifi_region['region'] not in region:
+            wifi1.append(int(wifi_region['wifi_1m_num']))
+            wifi3.append(int(wifi_region['wifi_3m_num']))
+            wifi1_total.append(int(wifi_region['wifi_1m_num_total']))
+            wifi3_total.append(int(wifi_region['wifi_3m_num_total']))
+            region.append(wifi_region['region'])
+        elif wifi_region['region'] in region:
+            index_wifi=region.index(wifi_region['region'])
+            wifi1[index_wifi]=wifi1[index_wifi]+int(wifi_region['wifi_1m_num'])
+            wifi3[index_wifi]=wifi3[index_wifi]+int(wifi_region['wifi_3m_num'])
+            wifi1_total[index_wifi]=wifi1_total[index_wifi]+int(wifi_region['wifi_1m_num_total'])
+            wifi3_total[index_wifi]=wifi3_total[index_wifi]+int(wifi_region['wifi_3m_num_total'])
+    for x in range(len(region)):
+        wifiprobeData_day_region.objects.create(wifi_1m_num=wifi1[x],wifi_3m_num=wifi3[x],wifi_1m_num_total=wifi1_total[x],wifi_3m_num_total=wifi3_total[x],add_time= time_stamp,time=day_time,region=region[x])  #存入当天数据
+    
+    #计算当天人流量数据
+    wifi_data=wifiprobeData_day.objects.filter(time__year=year,time__month=month,time__day=day).values("store","wifi_3m_num","wifi_1m_num")
+    #print ("wifi_data=",wifi_data)
+    for wifi_data_add in wifi_data:
+        store_wifi.append(wifi_data_add['store'])
+        wifi1.append(wifi_data_add['wifi_1m_num'])
+        wifi3.append(wifi_data_add['wifi_3m_num'])
+    if len(store_wifi) >=len(store_name_add):
+        for x in range(len(store_wifi)):
+            if store_wifi[x] in store_name_add:
+                wifi_index=store_name_add.index(store_wifi[x])
+                store_p.append(store_wifi[x])
+                ex.append(excellent_add[wifi_index])
+                go.append(good_add[wifi_index])
+                un.append(unsatisfy_add[wifi_index])
+                wifi1_p.append(wifi1[x])
+                wifi3_p.append(wifi3[x])
+            elif store_wifi[x] not in store_name_add:
+                store_p.append(store_wifi[x])
+                ex.append(0)
+                go.append(0)
+                un.append(0)
+                wifi1_p.append(wifi1[x])
+                wifi3_p.append(wifi3[x])                
+    if len(store_wifi) < len(store_name_add):
+        for x in range(len(store_name_add)):
+            if store_name_add[x] in store_wifi:
+                store_p.append(store_name_add[x])
+                wifi_index=store_wifi.index(store_name_add[x])
+                wifi1_p.append(wifi1[wifi_index])
+                wifi3_p.append(wifi3[wifi_index])
+                ex.append(excellent_add[x])
+                go.append(good_add[x])
+                un.append(unsatisfy_add[x])
+            elif store_name_add[x] not in store_wifi:
+                store_p.append(store_name_add[x])
+                wifi1_p.append(0)
+                wifi3_p.append(0)
+                ex.append(excellent_add[x])
+                go.append(good_add[x])
+                un.append(unsatisfy_add[x])
+        
+        
+    '''
+    #统计前一天产品销售数据
+    store_last=[]
+    num_saleproduct_last=[]
+    sum_saleproduct_last=[]
+    total_num_last=[]
+    total_sum_last=[]
+    wifi_1m_num_last=[]
+    wifi_3m_num_last=[]
+    excellent_num_last=[]
+    good_num_last=[]
+    unsatisfy_num_last=[]
+    date_last = str(now().date() + timedelta(days=-1)).split('-') #获取前一天时间
+    year_last=date_last[0]
+    month_last=date_last[1]
+    day_last=str(int(date_last[2]))
+    #print (year_last,month_last,day_last)
+    salepro_day_last=SaleProduct_day.objects.filter(time__year=year_last,time__month=month_last,time__day=day_last).values("store","quantity_pro","sum_pro","quantity_total_pro","sum_total_pro","excellent_num","good_num","unsatisfy_num","wifi_3m_num","wifi_1m_num")
+    for sale_data_last in salepro_day_last:   #字典遍历
+        store_last.append(sale_data_last['store'])
+        num_saleproduct_last.append(sale_data_last['quantity_pro']) #产品销售数量
+        sum_saleproduct_last.append(sale_data_last['sum_pro'])  # 产品销售额
+        total_num_last.append(sale_data_last['quantity_total_pro']) # 累计产品销售数量
+        total_sum_last.append(sale_data_last['sum_total_pro']) #累计产品销售额
+        wifi_1m_num_last.append(sale_data_last['wifi_1m_num'])#1m人流量数据
+        wifi_3m_num_last.append(sale_data_last['wifi_3m_num'])#3m人流量数据
+        excellent_num_last.append(sale_data_last['excellent_num'])#满意数据
+        good_num_last.append(sale_data_last['good_num'])#一般数据
+        unsatisfy_num_last.append(sale_data_last['unsatisfy_num'])#不满意数据
+    
+    #统计前一天配件销售数据
+    store_acc_last=[]
+    num_saleacc_last=[]
+    sum_saleacc_last=[]
+    total_accnum_last=[]
+    total_accsum_last=[]
+    
+    #print (year_last,month_last,day_last)
+    saleacc_day_last=SaleAccessory_day.objects.filter(time__year=year_last,time__month=month_last,time__day=day_last).values("store","quantity_acc","sum_acc","quantity_total_acc","sum_total_acc")
+    for sale_acc_last in saleacc_day_last:   #字典遍历
+        store_acc_last.append(sale_acc_last['store'])
+        num_saleacc_last.append(sale_acc_last['quantity_acc']) #产品销售数量
+        sum_saleacc_last.append(sale_acc_last['sum_acc'])  # 产品销售额
+        total_accnum_last.append(sale_acc_last['quantity_total_acc']) # 累计产品销售数量
+        total_accsum_last.append(sale_acc_last['sum_total_acc']) #累计产品销售额
+        
+    '''
+    #统计当天配件销售数据
+    saleacc_data=[]
+    store_acc_now=[]
+    quantity_acc_now=[]
+    price_acc_now=[]
+    sum_acc_now=[]
+    time_acc_sale=[]
+    store_acc_day=[]
+    quantity_acc_day=[]
+    price_acc_day=[]
+    sum_acc_day=[]
+    time_saleacc_day=[]
+    total_acc_num=[]
+    total_acc_sum=[]
+    '''
+    saleacc_data=SaleAccessory.objects.filter(time__year=year,time__month=month,time__day=day).values("store","time","quantity","price","sum") #按销售时间查询，不是按录入时间查询，排除延时录入被漏掉的可能性
+    for sale_accdata in saleacc_data:   #字典遍历
+        store_acc_now.append(sale_accdata['store'])
+        quantity_acc_now.append(sale_accdata['quantity'])
+        price_acc_now.append(sale_accdata['price'])
+        sum_acc_now.append(sale_accdata['sum'])
+        time_acc_sale.append(sale_accdata['time'])
+    for x in range(len(store_acc_now)):
+        if store_acc_now[x] not in store_acc_day:
+            store_acc_day.append(store_acc_now[x])
+            quantity_acc_day.append(quantity_acc_now[x])
+            price_acc_day.append(price_acc_now[x])
+            sum_acc_day.append(sum_acc_now[x])
+        
+        elif store_acc_now[x] in store_acc_day:
+            store_acc_index=store_acc_day.index(store_acc_now[x])
+            quantity_acc_day[store_acc_index]=quantity_acc_day[store_acc_index]+quantity_acc_now[x]
+            sum_acc_day[store_acc_index]=sum_acc_day[store_acc_index]+sum_acc_now[x]
+            price_acc_day[store_acc_index]=price_acc_day[store_acc_index]+price_acc_now[x]
+    for x in range (len(store_name)):    #如果门店没有销售，则将销售额/销售量/价格设置为0
+        if store_name[x] not in store_acc_day:
+            store_acc_day.append(store_name[x])
+            quantity_acc_day.append(0)
+            sum_acc_day.append(0)
+            price_acc_day.append(0)
+        #统计当天销售数据累计
+    for i in range(len(store_acc_day)):
+        total_acc_num.append(0)
+        total_acc_sum.append(0)
+    for k in range(len(store_acc_day)):
+        if store_acc_day[k] in store_acc_last:  #如果今天销售数据中门店在前一天的销售数据中有
+            store_acc_index_last=store_acc_last.index(store_acc_day[k])  #如果今天的销售数据中的门店在前一天有数据，定位index
+            total_acc_num[k]=total_accnum_last[store_acc_index_last]+quantity_acc_day[k] #今天的数量+前一天的数量
+            total_acc_sum[k]=total_accsum_last[store_acc_index_last]+sum_acc_day[k]
+        else:                                 #如果今天销售数据中新增门店
+            total_acc_num[k]=quantity_acc_day[k] 
+            total_acc_sum[k]=sum_acc_day[k]
+    '''
+    
+    
+    
+    #统计当天产品销售数据
+    salepro_data=[]
+    store_now=[]
+    quantity_now=[]
+    price_now=[]
+    sum_now=[]
+    item=[]
+    classification=[]
+    time_sale=[]
+    store_day=[]
+    quantity_day=[]
+    price_day=[]
+    sum_day=[]
+    time_sale_day=[]
+    total_num=[]
+    total_sum=[]
+    wifi_1m_num_now=[]
+    wifi_3m_num_now=[]
+    excellent_num_now=[]
+    good_num_now=[]
+    unsatisfy_num_now=[]
+    wifi_1m_num_total=[]
+    wifi_3m_num_total=[]
+    excellent_num_total=[]
+    good_num_total=[]
+    unsatisfy_num_total=[]
+    total_sum_pro=[]
+    total_num_pro=[]
+    total_num_di=[]
+    total_sum_di=[]
+    device=[]
+    for x in range(len(store_name)):
+        quantity_day.append(0)
+        price_day.append(0)
+        sum_day.append(0)
+        total_num.append(0)
+        total_sum.append(0)
+       
+    day_time=now().date() + timedelta(days=0)  #获取今天时间       date = now().date() + timedelta(days=-1) #昨天
+    time_stamp=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))#获取系统当前时间戳
+    salepro_data=SaleProduct.objects.filter(time__year=year,time__month=month,time__day=day).values("store","time","quantity","price","sum","item","classification","device_id") #按销售时间查询，不是按录入时间查询，排除延时录入被漏掉的可能性
+    #print ("salepro_data=",salepro_data)
+    for sale_data in salepro_data:   #字典遍历
+        store_now.append(sale_data['store'])
+        quantity_now.append(int(sale_data['quantity']))
+        price_now.append(float(sale_data['price']))
+        sum_now.append(float(sale_data['sum']))
+        time_sale.append(sale_data['time'])
+        item.append(sale_data['item'])
+        classification.append(sale_data['classification'])
+        device.append(sale_data['device_id'])
+        print ("device=",device)
+        #print ("classification=",classification)
+    for x in range (len(store_now)):
+        #print ("store_now[x]=",store_now[x])
+        #print ("item[y]=",item[x])
+        total_num_di=SaleProduct.objects.filter(store=store_now[x],item=item[x]).aggregate(nums1=Sum('quantity')) #截至当天的累计数据
+        #print ("total_num_di=",total_num_di['nums1'])
+        if total_num_di['nums1']==None:
+            total_num_di['nums1']=0
+        
+        total_sum_di=SaleProduct.objects.filter(store=store_now[x],item=item[x]).aggregate(nums2=Sum('sum'))
+        #print ("total_sum_di=",total_sum_di['nums2'])
+        if total_sum_di['nums2']==None:
+            total_sum_di['nums2']=0
+        #total_sum_pro.append(float(total_sum_di['nums2']))
+        #total_num_pro.append(int(total_num_di['nums1']))
+        store_index=store_name.index(store_now[x])
+        #print ('device[x]=',device[x])
+        SaleProduct_day.objects.create(store=str(store_now[x]),time=day_time,quantity_pro=int(quantity_now[x]),price_pro=price_now[x],sum_pro=float(sum_now[x]),item=item[x],classification=classification[x],add_time= time_stamp,quantity_total_pro=int(total_num_di['nums1']),sum_total_pro=float(total_sum_di['nums2']),city=city_name[store_index],region=region_name[store_index],province=province_name[store_index],device_id=device[x])  #存入当天数据
+    #print ("total_num=",total_num_pro)
+    #print ("total_sum=",total_sum_pro)
+    '''
+    for x in range(len(item)):
+        item_index=store_name.index(store_now[x])
+        quantity_day[store_index]=quantity_day[store_index]+quantity_now[x]
+        price_day[store_index]=price_day[store_index]+price_now[x]
+        sum_day[store_index]=sum_day[store_index]+sum_now[x]
+    '''
+    '''
+    for x in range (len(store_name)):    #如果门店没有销售，则将销售额/销售量/价格设置为0
+        if store_name[x] not in store_day:
+            store_day.append(store_name[x])
+            quantity_day.append(0)
+            sum_day.append(0)
+            price_day.append(0)
+    
+        #统计当天销售数据累计
+    city_day=[]
+    region_day=[]
+    for i in range(len(store_name)):
+        total_num.append(0)
+        total_sum.append(0)
+    '''
+    #print (store_name,city_name,region_name)
+    '''
+    for k in range(len(store_last)):
+        if store_last[k] in store_name:  #如果今天销售数据中门店在前一天的销售数据中有
+            store_index_last=store_name.index(store_last[k])  #如果今天的销售数据中的门店在前一天有数据，定位index
+            total_num[store_index_last]=total_num_last[k]+quantity_day[store_index_last] #今天的数量+前一天的数量
+            total_sum[store_index_last]=total_sum_last[k]+sum_day[store_index_last]
+            
+        else:
+            pass
+    '''
+    day_time=now().date() + timedelta(days=0)  #获取今天时间       date = now().date() + timedelta(days=-1) #昨天
+    time_stamp=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))#获取系统当前时间戳
+    '''
+    print ("len(store_p)=",len(store_p))
+    print ("len(store_now)=",len(store_now))
+    if len(store_p) < len(store_now):
+    
+        for i in range(len(store_now)):
+            #print ("store_wifi=",store_wifi)
+            if store_now[i] in store_p:
+                wifi_index=store_p.index(store_now[i])  #定位wifi设备门店
+                wifi1_select=int(wifi1_p[wifi_index])
+                wifi3_select=int(wifi3_p[wifi_index])
+                execllect_select=int(ex[wifi_index])
+                good_select=int(go[wifi_index])
+                unsatisfy_select=int(un[wifi_index])
+                store_index=store_name.index(store_now[i])
+                SaleProduct_day.objects.create(store=str(store_now[i]),time=day_time,quantity_pro=int(quantity_now[i]),price_pro=price_now[i],sum_pro=float(sum_now[i]),item=item[i],classification=classification[i],add_time= time_stamp,quantity_total_pro=total_num_pro[i],sum_total_pro=total_sum_pro[i],wifi_1m_num=wifi1_select,wifi_3m_num=wifi3_select,excellent_num=execllect_select,good_num=good_select,unsatisfy_num=unsatisfy_select,city=city_name[store_index],region=region_name[store_index])  #存入当天数据
+                
+            if store_now[i] not in store_p:
+                store_index=store_name.index(store_now[i])
+                print ("item[]=",item[i])
+                SaleProduct_day.objects.create(store=str(store_now[i]),time=day_time,quantity_pro=int(quantity_now[i]),price_pro=price_now[i],sum_pro=float(sum_now[i]),item=item[i],classification=classification[i],add_time= time_stamp,quantity_total_pro=total_num_pro[i],sum_total_pro=total_sum_pro[i],wifi_1m_num=0,wifi_3m_num=0,excellent_num=0,good_num=0,unsatisfy_num=0,city=city_name[store_index],region=region_name[store_index])  #存入当天数据
+    
+    if len(store_p) >= len(store_now):
+        for i in range(len(store_p)):
+            if store_p[i] in store_now:
+                store_index=store_name.index(store_p[i])
+                index_now=store_now.index(store_p[i])
+                #for x in range(len(store_now)):
+                #    if store_p[i]==store_now[x]:
+                SaleProduct_day.objects.create(store=str(store_p[i]),time=day_time,item=item[index_now],classification=classification[index_now],quantity_pro=int(quantity_now[index_now]),price_pro=float(price_now[index_now]),sum_pro=float(sum_now[index_now]),add_time= time_stamp,quantity_total_pro=total_num_pro[index_now] ,sum_total_pro=total_sum_pro[index_now] ,wifi_1m_num=wifi1_p[i],wifi_3m_num=wifi3_p[i],excellent_num=ex[i],good_num=go[i],unsatisfy_num=un[i],city=city_name[store_index],region=region_name[store_index])  #存入当天数据    
+                
+                
+                del(item[index_now])
+                del(classification[index_now])
+                del(quantity_now[index_now])
+                del(price_now[index_now])
+                del(sum_now[index_now])
+                del(total_num_pro[index_now])
+                del(total_sum_pro[index_now])
+                del(store_now[index_now])
+                
+            if store_p[i] not in store_now:
+                store_index=store_name.index(store_p[i])
+                SaleProduct_day.objects.create(store=str(store_p[i]),time=day_time,quantity_pro=0,price_pro=0,sum_pro=0,add_time= time_stamp,quantity_total_pro=0,sum_total_pro=0,item="",classification="",wifi_1m_num=wifi1_p[i],wifi_3m_num=wifi3_p[i],excellent_num=ex[i],good_num=go[i],unsatisfy_num=un[i],city=city_name[store_index],region=region_name[store_index])  #存入当天数据
+    '''
+    salepro_data=[]
+    store_now=[]
+    quantity_pro=[]
+    price_pro=[]
+    sum_pro=[]
+    item=[]
+    classification=[]
+    time_sale=[]
+    store_day=[]
+    city_day=[]
+    province_day=[]
+    quantity_day=[]
+    price_day=[]
+    sum_day=[]
+    time_sale_day=[]
+    total_num=[]
+    total_sum=[]
+    wifi_1m_num_now=[]
+    wifi_3m_num_now=[]
+    excellent_num=[]
+    good_num=[]
+    unsatisfy_num=[]
+    wifi_1m_num=[]
+    wifi_3m_num=[]
+    excellent_num_total=[]
+    good_num_total=[]
+    unsatisfy_num_total=[]
+    total_sum_di=[]
+    total_num_di=[]
+    region=[]
+    device=[]
+    salestore_data_store=SaleProduct_day.objects.filter(time__year=year,time__month=month,time__day=day).values("quantity_pro","price_pro","sum_pro","quantity_total_pro","sum_total_pro","store","city","region","province","item","device_id") 
+    
+    for sale_data_sum in salestore_data_store:
+        
+        #print ("item_city=",item_city)
+        #print ("sale_data_sum['quantity_pro']",sale_data_sum['quantity_pro'])
+        #for x in range(len(item_city)):
+        if sale_data_sum['store'] not in store_day:
+            #if sale_data_sum['item'] not in item:
+            store_day.append(sale_data_sum['store'])
+            city_day.append(sale_data_sum['city'])
+            province_day.append(sale_data_sum['province'])
+            region.append(sale_data_sum['region'])
+            quantity_pro.append(int(sale_data_sum['quantity_pro']))
+            sum_pro.append(float(sale_data_sum['sum_pro']))
+            price_pro.append(float(sale_data_sum['price_pro']))
+            total_num_di.append(int(sale_data_sum['quantity_total_pro']))
+            total_sum_di.append(float(sale_data_sum['sum_total_pro']))
+            item.append(sale_data_sum['item'])
+            device.append(sale_data_sum['device_id'])
+        elif sale_data_sum['store'] in store_day:
+            index_store=store_day.index(sale_data_sum['store'])
+            
+            quantity_pro[index_store]=quantity_pro[index_store]+int(sale_data_sum['quantity_pro'])
+            sum_pro[index_store]=sum_pro[index_store]+float(sale_data_sum['sum_pro'])
+            if quantity_pro[index_store]!=0:
+                price_pro[index_store]=float(sum_pro[index_store]/quantity_pro[index_store])
+            if quantity_pro[index_store]==0:
+                price_pro[index_store]=0
+            total_num_di[index_store]=total_num_di[index_store]+int(sale_data_sum['quantity_total_pro'])
+            total_sum_di[index_store]=total_sum_di[index_store]+float(sale_data_sum['sum_total_pro'])
+            #wifi_1m_num[index_store]=wifi_1m_num[index_store]+int(sale_data_sum['wifi_1m_num'])
+            #wifi_3m_num[index_store]=wifi_3m_num[index_store]+int(sale_data_sum['wifi_3m_num'])
+            #excellent_num[index_store]=excellent_num[index_store]+int(sale_data_sum['excellent_num'])
+            #good_num[index_store]=good_num[index_store]+int(sale_data_sum['good_num'])
+            #unsatisfy_num[index_store]=unsatisfy_num[index_store]+int(sale_data_sum['unsatisfy_num'])
+    #print ("store_day=",store_day)
+    for x in range(len(store_day)):
+        Sum_day_store.objects.create(time=day_time,quantity_pro=int(quantity_pro[x]),price_pro=round(price_pro[x],2),sum_pro=float(sum_pro[x]),add_time= time_stamp,quantity_total_pro=total_num_di[x],sum_total_pro= round(total_sum_di[x],2),store=store_day[x],city=city_day[x],region=region[x],province=province_day[x],device_id=device[x])  #存入当天数据
+    
+    store_day=[]
+    store_p=[]
+    #print ("len(store_p)=",len(store_p))
+    salestore_data=SaleProduct_day.objects.filter(time__year=year,time__month=month,time__day=day).values("store","time","quantity_pro","price_pro","sum_pro","quantity_total_pro","sum_total_pro","city","region","province","item","classification") 
+    #print ("salestore_data=",salestore_data)
+    cityname=[]
+    quantity_pro=[]
+    price_pro=[]
+    sum_pro=[]
+    quantity_total_pro=[]
+    sum_total_pro=[]
+    wifi_1m_num=[]
+    wifi_3m_num=[]
+    excellent_num=[]
+    good_num=[]
+    unsatisfy_num=[]
+    price_acc=[]
+    quantity_acc=[]
+    quantity_total_acc=[]
+    sum_acc=[]
+    sum_total_acc=[]
+    classification_city=[]
+    item_city=[]
+    
+    province=[]
+    day_time=now().date() + timedelta(days=0)  #获取今天时间       date = now().date() + timedelta(days=-1) #昨天
+    region=[]
+    #print ("salestore_data=",salestore_data)
+    for sale_data_day in salestore_data:
+        item_city=list(set(sale_data_day['item']))
+        #print ("item_city=",item_city)
+        #print ("sale_data_day['item']",sale_data_day['item'])
+        #for x in range(len(item_city)):
+        quantity_pro=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums1=Sum('quantity_pro'))
+        #print ("quantity_pro=",quantity_pro['nums1'])
+        sum_pro=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums3=Sum('sum_pro'))
+        #print ('sum_pro=',sum_pro['nums3'])
+        if quantity_pro['nums1']!=0:
+            price_pro=float(float(sum_pro['nums3'])/int(quantity_pro['nums1']))
+        if quantity_pro['nums1']==0:
+            price_pro=0
+        total_num_di=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums4=Sum('quantity_total_pro'))
+        #print ('total_num_di=',total_num_di['nums4'])
+        if total_num_di['nums4']==None:
+            total_num_di['nums4']=0
+        total_sum_di=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums5=Sum('sum_total_pro'))
+        #print ("total_sum_di=",total_sum_di['nums5'])
+        if total_sum_di['nums5']==None:
+            total_sum_di['nums5']=0
+        #wifi_1m_num=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums6=Sum('wifi_1m_num'))
+        #print ('wifi_1m_num=',wifi_1m_num['nums6'])
+        #wifi_3m_num=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums7=Sum('wifi_3m_num'))
+        #print ('wifi_3m_num=',wifi_3m_num['nums7'])
+        #excellent_num=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums8=Sum('excellent_num'))
+        #print ('excellent_num=',excellent_num['nums8'])
+        #good_num=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums9=Sum('good_num'))
+        #print ('good_num=',good_num['nums9'])
+        #unsatisfy_num=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums10=Sum('unsatisfy_num'))
+        #print ('unsatisfy_num=',unsatisfy_num['nums10'])
+        #index_class=sale_data_day['item'].index(item_city[x])
+        classification_city=sale_data_day['classification']
+        province=sale_data_day['province']
+        region=sale_data_day['region']
+        SaleProduct_day_city.objects.create(time=day_time,quantity_pro=int(quantity_pro['nums1']),price_pro=round(price_pro,2),sum_pro=float(sum_pro['nums3']),add_time= time_stamp,quantity_total_pro=total_num_di['nums4'],sum_total_pro= round(total_sum_di['nums5'],2),city=sale_data_day['city'],region=region,province=province,item=sale_data_day['item'],classification=sale_data_day['classification'])  #存入当天数据
+    cityname=[]
+    quantity_pro=[]
+    price_pro=[]
+    sum_pro=[]
+    quantity_total_pro=[]
+    sum_total_pro=[]
+    wifi_1m_num=[]
+    wifi_3m_num=[]
+    excellent_num=[]
+    good_num=[]
+    unsatisfy_num=[]
+    price_acc=[]
+    quantity_acc=[]
+    quantity_total_acc=[]
+    sum_acc=[]
+    sum_total_acc=[]
+    classification_city=[]
+    item_city=[]
+    total_num_di=[]
+    total_sum_di=[]
+    province=[]
+    region=[]
+    salestore_data_city=SaleProduct_day_city.objects.filter(time__year=year,time__month=month,time__day=day).values("quantity_pro","price_pro","sum_pro","quantity_total_pro","sum_total_pro","city","region","province","item","classification") 
+    
+    for sale_data_day in salestore_data_city:
+        
+        #print ("item_city=",item_city)
+        #print ("sale_data_day['item']",sale_data_day['item'])
+        #for x in range(len(item_city)):
+        if sale_data_day['city'] not in cityname:
+            cityname.append(sale_data_day['city'])
+            quantity_pro.append(int(sale_data_day['quantity_pro']))
+            sum_pro.append(float(sale_data_day['sum_pro']))
+            price_pro.append(float(sale_data_day['price_pro']))
+            total_num_di.append(int(sale_data_day['quantity_total_pro']))
+            total_sum_di.append(float(sale_data_day['sum_total_pro']))
+            #wifi_1m_num.append(int(sale_data_day['wifi_1m_num']))
+            #wifi_3m_num.append(int(sale_data_day['wifi_3m_num']))
+            #excellent_num.append(int(sale_data_day['excellent_num']))
+            #good_num.append(int(sale_data_day['good_num']))
+            #unsatisfy_num.append(int(sale_data_day['unsatisfy_num']))
+            province.append(sale_data_day['province'])
+            region.append(sale_data_day['region'])
+        elif sale_data_day['city'] in cityname:
+            index_city=cityname.index(sale_data_day['city'])
+            quantity_pro[index_city]=quantity_pro[index_city]+int(sale_data_day['quantity_pro'])
+            sum_pro[index_city]=sum_pro[index_city]+float(sale_data_day['sum_pro'])
+            total_num_di[index_city]=total_num_di[index_city]+int(sale_data_day['quantity_total_pro'])
+            total_sum_di[index_city]=total_sum_di[index_city]+float(sale_data_day['sum_total_pro'])
+            #wifi_1m_num[index_city]=wifi_1m_num[index_city]+int(sale_data_day['wifi_1m_num'])
+            #wifi_3m_num[index_city]=wifi_3m_num[index_city]+int(sale_data_day['wifi_3m_num'])
+            #excellent_num[index_city]=excellent_num[index_city]+int(sale_data_day['excellent_num'])
+            #good_num[index_city]=good_num[index_city]+int(sale_data_day['good_num'])
+            #unsatisfy_num[index_city]=unsatisfy_num[index_city]+int(sale_data_day['unsatisfy_num'])
+    #print (cityname)
+    for x in range(len(cityname)):
+        Sum_day_city.objects.create(time=day_time,quantity_pro=int(quantity_pro[x]),price_pro=price_pro[x],sum_pro=float(sum_pro[x]),add_time= time_stamp,quantity_total_pro=total_num_di[x],sum_total_pro= round(total_sum_di[x],2),city=cityname[x],region=region[x],province=province[x])  #存入当天数据
+    
+    cityname.clear()
+    quantity_pro.clear()
+    #price_pro.clear()
+    sum_pro.clear()
+    quantity_total_pro.clear()
+    sum_total_pro.clear()
+    wifi_1m_num.clear()
+    wifi_3m_num.clear()
+    excellent_num.clear()
+    good_num.clear()
+    unsatisfy_num.clear()
+    price_acc.clear()
+    quantity_acc.clear()
+    quantity_total_acc.clear()
+    sum_acc.clear()
+    sum_total_acc.clear()
+    region.clear()
+    regionname=[]
+    quantity_pro=[]
+    price_pro=[]
+    sum_pro=[]
+    quantity_total_pro=[]
+    sum_total_pro=[]
+    wifi_1m_num=[]
+    wifi_3m_num=[]
+    excellent_num=[]
+    good_num=[]
+    unsatisfy_num=[]
+    price_acc=[]
+    quantity_acc=[]
+    quantity_total_acc=[]
+    sum_acc=[]
+    sum_total_acc=[]
+    total_num_di=[]
+    total_sum_di=[]
+    item_city=[]
+    
+    saleregion_data=SaleProduct_day_city.objects.filter(time__year=year,time__month=month,time__day=day).values("time","quantity_pro","price_pro","sum_pro","quantity_total_pro","sum_total_pro","region","province","item","classification") 
+    #print ("salecity_data=",saleregion_data)
+    for sale_data_province in saleregion_data:
+        quantity_pro=SaleProduct_day_city.objects.filter(province=sale_data_province['province'],item=sale_data_province['item'],time=day_time).aggregate(nums1=Sum('quantity_pro'))
+        #sum_pro=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums3=Sum('sum_pro'))
+        sum_pro=SaleProduct_day_city.objects.filter(province=sale_data_province['province'],item=sale_data_province['item'],time=day_time).aggregate(nums3=Sum('sum_pro'))
+        #print ('sum_pro=',sum_pro['nums3'])
+        if quantity_pro['nums1']!=0:
+            price_pro=float(float(sum_pro['nums3'])/int(quantity_pro['nums1']))
+        if quantity_pro['nums1']==0:
+            price_pro=0
+        total_num_di=SaleProduct_day_city.objects.filter(province=sale_data_province['province'],item=sale_data_province['item'],time=day_time).aggregate(nums4=Sum('quantity_total_pro'))
+        #print ('total_num_di=',total_num_di['nums4'])
+        if total_num_di['nums4']==None:
+            total_num_di['nums4']=0
+        total_sum_di=SaleProduct_day_city.objects.filter(province=sale_data_province['province'],item=sale_data_province['item'],time=day_time).aggregate(nums5=Sum('sum_total_pro'))
+        #print ("total_sum_di=",total_sum_di['nums5'])
+        if total_sum_di['nums5']==None:
+            total_sum_di['nums5']=0
+        #wifi_1m_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums6=Sum('wifi_1m_num'))
+        #print ('wifi_1m_num=',wifi_1m_num['nums6'])
+        #wifi_3m_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums7=Sum('wifi_3m_num'))
+        #print ('wifi_3m_num=',wifi_3m_num['nums7'])
+        #excellent_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums8=Sum('excellent_num'))
+        #print ('excellent_num=',excellent_num['nums8'])
+        #good_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums9=Sum('good_num'))
+        #print ('good_num=',good_num['nums9'])
+        #unsatisfy_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums10=Sum('unsatisfy_num'))
+        
+        classification_city=sale_data_day['classification']
+        province=sale_data_province['province']
+        region=sale_data_province['region']
+        time_stamp=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))#获取系统当前时间戳
+        SaleProduct_day_province.objects.create(time=day_time,quantity_pro=int(quantity_pro['nums1']),price_pro=price_pro,sum_pro=float(sum_pro['nums3']),add_time= time_stamp,quantity_total_pro=total_num_di['nums4'],sum_total_pro= round(total_sum_di['nums5'],2),region=region,province=province,item=sale_data_province['item'],classification=sale_data_province['classification'])  #存入当天数据
+    
+    regionname=[]
+    quantity_pro=[]
+    price_pro=[]
+    sum_pro=[]
+    quantity_total_pro=[]
+    sum_total_pro=[]
+    wifi_1m_num=[]
+    wifi_3m_num=[]
+    excellent_num=[]
+    good_num=[]
+    unsatisfy_num=[]
+    price_acc=[]
+    quantity_acc=[]
+    quantity_total_acc=[]
+    sum_acc=[]
+    sum_total_acc=[]
+    region=[]
+    province=[]
+    item_city=[]
+    total_num_di=[]
+    total_sum_di=[]
+    salestore_data_province=SaleProduct_day_province.objects.filter(time__year=year,time__month=month,time__day=day).values("quantity_pro","price_pro","sum_pro","quantity_total_pro","sum_total_pro","region","province","item","classification") 
+    
+    for sale_data_sum in salestore_data_province:
+        
+        #print ("item_city=",item_city)
+        #print ("sale_data_sum['quantity_pro']",sale_data_sum['quantity_pro'])
+        #for x in range(len(item_city)):
+        if sale_data_sum['province'] not in province:
+            province.append(sale_data_sum['province'])
+            region.append(sale_data_sum['region'])
+            quantity_pro.append(int(sale_data_sum['quantity_pro']))
+            sum_pro.append(float(sale_data_sum['sum_pro']))
+            price_pro.append(float(sale_data_sum['price_pro']))
+            total_num_di.append(int(sale_data_sum['quantity_total_pro']))
+            total_sum_di.append(float(sale_data_sum['sum_total_pro']))
+            #wifi_1m_num.append(int(sale_data_sum['wifi_1m_num']))
+            #wifi_3m_num.append(int(sale_data_sum['wifi_3m_num']))
+            #excellent_num.append(int(sale_data_sum['excellent_num']))
+            #good_num.append(int(sale_data_sum['good_num']))
+            #unsatisfy_num.append(int(sale_data_sum['unsatisfy_num']))
+        elif sale_data_sum['region'] in province:
+            index_province=province.index(sale_data_sum['province'])
+            #print ("index_region=",index_region)
+            quantity_pro[index_province]=quantity_pro[index_province]+int(sale_data_sum['quantity_pro'])
+            sum_pro[index_province]=sum_pro[index_province]+float(sale_data_sum['sum_pro'])
+            total_num_di[index_province]=total_num_di[index_province]+int(sale_data_sum['quantity_total_pro'])
+            total_sum_di[index_province]=total_sum_di[index_province]+float(sale_data_sum['sum_total_pro'])
+            #wifi_1m_num[index_region]=wifi_1m_num[index_region]+int(sale_data_sum['wifi_1m_num'])
+            #wifi_3m_num[index_region]=wifi_3m_num[index_region]+int(sale_data_sum['wifi_3m_num'])
+            #excellent_num[index_region]=excellent_num[index_region]+int(sale_data_sum['excellent_num'])
+            #good_num[index_region]=good_num[index_region]+int(sale_data_sum['good_num'])
+            #unsatisfy_num[index_region]=unsatisfy_num[index_region]+int(sale_data_sum['unsatisfy_num'])
+    #print ("quantity_pro=",total_num_di)
+    for x in range(len(province)):
+        if province[x]!="":
+            Sum_day_province.objects.create(time=day_time,quantity_pro=int(quantity_pro[x]),price_pro=price_pro[x],sum_pro=float(sum_pro[x]),add_time= time_stamp,quantity_total_pro=int(total_num_di[x]),sum_total_pro= round(total_sum_di[x],2),region=region[x],province=province[x])  #存入当天数据
+    
+    
+    cityname.clear()
+    quantity_pro.clear()
+    #price_pro.clear()
+    sum_pro.clear()
+    quantity_total_pro.clear()
+    sum_total_pro.clear()
+    wifi_1m_num.clear()
+    wifi_3m_num.clear()
+    excellent_num.clear()
+    good_num.clear()
+    unsatisfy_num.clear()
+    price_acc.clear()
+    quantity_acc.clear()
+    quantity_total_acc.clear()
+    sum_acc.clear()
+    sum_total_acc.clear()
+    region.clear()
+    regionname=[]
+    quantity_pro=[]
+    price_pro=[]
+    sum_pro=[]
+    quantity_total_pro=[]
+    sum_total_pro=[]
+    wifi_1m_num=[]
+    wifi_3m_num=[]
+    excellent_num=[]
+    good_num=[]
+    unsatisfy_num=[]
+    price_acc=[]
+    quantity_acc=[]
+    quantity_total_acc=[]
+    sum_acc=[]
+    sum_total_acc=[]
+    total_num_di=[]
+    total_sum_di=[]
+    item_city=[]
+    
+    saleregion_data=SaleProduct_day_city.objects.filter(time__year=year,time__month=month,time__day=day).values("time","quantity_pro","price_pro","sum_pro","quantity_total_pro","sum_total_pro","region","province","item","classification") 
+    #print ("salecity_data=",saleregion_data)
+    for sale_data_region in saleregion_data:
+        quantity_pro=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums1=Sum('quantity_pro'))
+        #sum_pro=SaleProduct_day.objects.filter(city=sale_data_day['city'],item=sale_data_day['item'],time=day_time).aggregate(nums3=Sum('sum_pro'))
+        sum_pro=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums3=Sum('sum_pro'))
+        #print ('sum_pro=',sum_pro['nums3'])
+        if quantity_pro['nums1']!=0:
+            price_pro=float(float(sum_pro['nums3'])/int(quantity_pro['nums1']))
+        if quantity_pro['nums1']==0:
+            price_pro=0
+        total_num_di=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums4=Sum('quantity_total_pro'))
+        #print ('total_num_di=',total_num_di['nums4'])
+        if total_num_di['nums4']==None:
+            total_num_di['nums4']=0
+        total_sum_di=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums5=Sum('sum_total_pro'))
+        #print ("total_sum_di=",total_sum_di['nums5'])
+        if total_sum_di['nums5']==None:
+            total_sum_di['nums5']=0
+        #wifi_1m_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums6=Sum('wifi_1m_num'))
+        #print ('wifi_1m_num=',wifi_1m_num['nums6'])
+        #wifi_3m_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums7=Sum('wifi_3m_num'))
+        #print ('wifi_3m_num=',wifi_3m_num['nums7'])
+        #excellent_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums8=Sum('excellent_num'))
+        #print ('excellent_num=',excellent_num['nums8'])
+        #good_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums9=Sum('good_num'))
+        #print ('good_num=',good_num['nums9'])
+        #unsatisfy_num=SaleProduct_day_city.objects.filter(region=sale_data_region['region'],item=sale_data_region['item'],time=day_time).aggregate(nums10=Sum('unsatisfy_num'))
+        
+        classification_city=sale_data_day['classification']
+        region=sale_data_region['region']
+        time_stamp=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(time.time()))#获取系统当前时间戳
+        SaleProduct_day_region.objects.create(time=day_time,quantity_pro=int(quantity_pro['nums1']),price_pro=price_pro,sum_pro=float(sum_pro['nums3']),add_time= time_stamp,quantity_total_pro=total_num_di['nums4'],sum_total_pro= round(total_sum_di['nums5'],2),region=region,item=sale_data_region['item'],classification=sale_data_region['classification'])  #存入当天数据
+    
+    regionname=[]
+    quantity_pro=[]
+    price_pro=[]
+    sum_pro=[]
+    quantity_total_pro=[]
+    sum_total_pro=[]
+    wifi_1m_num=[]
+    wifi_3m_num=[]
+    excellent_num=[]
+    good_num=[]
+    unsatisfy_num=[]
+    price_acc=[]
+    quantity_acc=[]
+    quantity_total_acc=[]
+    sum_acc=[]
+    sum_total_acc=[]
+    region=[]
+    item_city=[]
+    total_num_di=[]
+    total_sum_di=[]
+    salestore_data_region=SaleProduct_day_region.objects.filter(time__year=year,time__month=month,time__day=day).values("quantity_pro","price_pro","sum_pro","quantity_total_pro","sum_total_pro","region","item","classification") 
+    
+    for sale_data_sum in salestore_data_region:
+        
+        #print ("item_city=",item_city)
+        #print ("sale_data_sum['quantity_pro']",sale_data_sum['quantity_pro'])
+        #for x in range(len(item_city)):
+        if sale_data_sum['region'] not in region:
+            region.append(sale_data_sum['region'])
+
+            quantity_pro.append(int(sale_data_sum['quantity_pro']))
+            sum_pro.append(float(sale_data_sum['sum_pro']))
+            price_pro.append(float(sale_data_sum['price_pro']))
+            total_num_di.append(int(sale_data_sum['quantity_total_pro']))
+            total_sum_di.append(float(sale_data_sum['sum_total_pro']))
+            #wifi_1m_num.append(int(sale_data_sum['wifi_1m_num']))
+            #wifi_3m_num.append(int(sale_data_sum['wifi_3m_num']))
+            #excellent_num.append(int(sale_data_sum['excellent_num']))
+            #good_num.append(int(sale_data_sum['good_num']))
+            #unsatisfy_num.append(int(sale_data_sum['unsatisfy_num']))
+        elif sale_data_sum['region'] in region:
+            index_region=region.index(sale_data_sum['region'])
+            #print ("index_region=",index_region)
+            quantity_pro[index_region]=quantity_pro[index_region]+int(sale_data_sum['quantity_pro'])
+            sum_pro[index_region]=sum_pro[index_region]+float(sale_data_sum['sum_pro'])
+            total_num_di[index_region]=total_num_di[index_region]+int(sale_data_sum['quantity_total_pro'])
+            total_sum_di[index_region]=total_sum_di[index_region]+float(sale_data_sum['sum_total_pro'])
+            #wifi_1m_num[index_region]=wifi_1m_num[index_region]+int(sale_data_sum['wifi_1m_num'])
+            #wifi_3m_num[index_region]=wifi_3m_num[index_region]+int(sale_data_sum['wifi_3m_num'])
+            #excellent_num[index_region]=excellent_num[index_region]+int(sale_data_sum['excellent_num'])
+            #good_num[index_region]=good_num[index_region]+int(sale_data_sum['good_num'])
+            #unsatisfy_num[index_region]=unsatisfy_num[index_region]+int(sale_data_sum['unsatisfy_num'])
+    print ("total_num_di=",total_num_di)
+    for x in range(len(region)):
+        Sum_day_region.objects.create(time=day_time,quantity_pro=int(quantity_pro[x]),price_pro=price_pro[x],sum_pro=float(sum_pro[x]),add_time= time_stamp,quantity_total_pro=int(total_num_di[x]),sum_total_pro= round(total_sum_di[x],2),region=region[x])  #存入当天数据
+    
+    
+    store_now.clear()
+    quantity_now.clear()
+    price_now.clear()
+    sum_now.clear()
+    time_sale.clear()
+    store_day.clear()
+    quantity_day.clear()
+    price_day.clear()
+    sum_day.clear()
+    time_sale_day.clear()
+    total_num.clear()
+    total_sum.clear()
+    excellent_add.clear()
+    good_add.clear()
+    unsatisfy_add.clear()
+    device_satisfy.clear()
+    store_name_add.clear()
+    device_id_add.clear()
+    wifi3.clear()
+    wifi1.clear()
+    store_wifi.clear()
+    device_id_satisfy_day.clear()
+    satisfy_day.clear()
+    good_day.clear()
+    unsatisfy_day.clear()
+    execllect.clear()
+    good.clear()
+    unsatisfy.clear()
+    sy_device_id.clear()
+    store_name.clear()
+    #device_id_add.clear()
+    wifi_id_add.clear()
+    store_add.clear()
+    #city_day.clear()
+    #region_day.clear()
+    city_id.clear()
+    city.clear()
+    city_name.clear()
+    region_id.clear()
+    region.clear()
+    region_dict_name.clear()
+    region_name.clear()
+    total_num_pro.clear()
+    total_sum_pro.clear()
+    ex.clear()
+    go.clear()
+    un.clear()
+    wifi1_p.clear()
+    wifi3_p.clear()
+    store_p.clear()
+    total_sum_di.clear
+    total_num_di.clear()

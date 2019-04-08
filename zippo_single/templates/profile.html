@@ -1,0 +1,1223 @@
+
+{% extends 'base.html' %}
+
+{% block titile %}
+个人中心
+{% endblock %}
+{% load staticfiles %}
+{% block custom_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'js/plugins/queryCity/css/cityLayout.css' %}">
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'css/lq.datetimepick.css' %}">
+
+
+
+
+
+{% endblock %}
+{% block content %}
+			<aside class="sidebar-menu fixed">
+				<div class="sidebar-inner scrollable-sidebar">
+					<div class="main-menu">
+						<ul class="accordion">
+							<li class="menu-header">
+								Main Menu
+							</li>
+							<li class="bg-palette1 active">
+								<a href="{% url 'index' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-home fa-lg"></i></span>
+										<span class="text m-left-sm">数据总览</span>
+									</span>
+									<span class="menu-content-hover block">
+										Home
+									</span>
+								</a>
+							</li>
+							<!--li class="bg-palette2">
+								<a href="landing/landing.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-desktop fa-lg"></i></span>
+										<span class="text m-left-sm">Landing</span>
+									</span>
+									<span class="menu-content-hover block">
+										Landing
+									</span>
+								</a>
+							</li-->
+							<li class="bg-palette3">
+								<a href="{% url 'org:device_detail' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-list fa-lg"></i></span>
+										<span class="text m-left-sm">详细数据</span>
+										<!--span class="submenu-icon"></span-->
+									</span>
+									<span class="menu-content-hover block">
+										Detail
+									</span>
+								</a>
+								<!--ul class="submenu bg-palette4">
+									<!--li><a href="form_element.html"><span class="submenu-label">Form Element</span></a></li-->
+									<!--li><a href="{% url 'org:org_list' %}"><span class="submenu-label">销售数据录入</span></a></li>
+									<!--li><a href="form_wizard.html"><span class="submenu-label">Form Wizard</span></a></li>
+									<li><a href="dropzone.html"><span class="submenu-label">Dropzone</span></a></li-->
+								<!--/ul-->
+							</li>
+                            <li class="bg-palette2">
+								<a href="{% url 'device:status' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">设备状态</span>
+									</span>
+									<span class="menu-content-hover block">
+										device status
+									</span>
+								</a>
+							</li>
+                            <li class="bg-palette4">
+								<a href="{% url 'device:device_resource' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">素材更新</span>
+									</span>
+									<span class="menu-content-hover block">
+										update resource
+									</span>
+								</a>
+							</li>
+                            <li class="bg-palette5">
+								<a href="{% url 'device:update_software' %}">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">软件更新</span>
+									</span>
+									<span class="menu-content-hover block">
+										update software
+									</span>
+								</a>
+							</li>
+							<!--li class="openable bg-palette4">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-tags fa-lg"></i></span>
+										<span class="text m-left-sm">详细数据</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										UI Kits
+									</span>
+								</a>
+								<ul class="submenu">
+									<!--li><a href="ui_element.html"><span class="submenu-label">Basic Elements</span></a></li>
+									<li><a href="button.html"><span class="submenu-label">Button & Icons</span></a></li-->
+									<!--li class="openable">
+										<a href="#">
+											<small class="badge badge-success badge-square bounceIn animation-delay2 m-left-xs pull-right">2</small>
+											<span class="submenu-label">详细数据</span>
+										</a>
+										<ul class="submenu third-level">
+											<li><a href="static_table.html"><span class="submenu-label">销售详细数据</span></a></li>
+											<li><a href="datatable.html"><span class="submenu-label">人流量详细数据</span></a></li>
+											<li class="active"><a href="satisfaction.html"><span class="submenu-label">客户满意度数据</span></a></li>
+										</ul>
+									</li>
+									<!--li><a href="widget.html"><span class="submenu-label">Widget</span></a></li>
+									<li><a href="tab.html"><span class="submenu-label">Tab</span></a></li>
+									<li><a href="calendar.html"><span class="submenu-label">Calendar</span></a></li>
+									<li><a href="treeview.html"><span class="submenu-label">Treeview</span></a></li>
+									<li><a href="nestable_list.html"><span class="submenu-label">Nestable Lists</span></a></li-->
+								<!--/ul>
+							</li-->
+							<!--li class="bg-palette1">
+								<a href="inbox.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-envelope fa-lg"></i></span>
+										<span class="text m-left-sm">Inboxs</span>
+										<small class="badge badge-danger badge-square bounceIn animation-delay5 m-left-xs">5</small>
+									</span>
+									<span class="menu-content-hover block">
+										Inboxs
+									</span>
+								</a>
+							</li-->
+							<!--li class="bg-palette2">
+								<a href="timeline.html">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-clock-o fa-lg"></i></span>
+										<span class="text m-left-sm">Timeline</span>
+										<small class="badge badge-warning badge-square bounceIn animation-delay6 m-left-xs pull-right">7</small>
+									</span>
+									<span class="menu-content-hover block">
+										Timeline
+									</span>
+								</a>
+							</li-->
+							<!--li class="menu-header">
+								Others
+							</li-->
+							<!--li class="openable bg-palette3">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-gift fa-lg"></i></span>
+										<span class="text m-left-sm">Extra Pages</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										Pages
+									</span>
+								</a>
+								<ul class="submenu">
+									<li><a href="signin.html"><span class="submenu-label">Sign in</span></a></li>
+									<li><a href="signup.html"><span class="submenu-label">Sign Up</span></a></li>
+									<li><a href="lockscreen.html"><span class="submenu-label">Lock Screen</span></a></li>
+									<li><a href="profile.html"><span class="submenu-label">Profile</span></a></li>
+									<li><a href="gallery.html"><span class="submenu-label">Gallery</span></a></li>
+									<li><a href="blog.html"><span class="submenu-label">Blog</span></a></li>
+									<li><a href="single_post.html"><span class="submenu-label">Single Post</span></a></li>
+									<li><a href="pricing.html"><span class="submenu-label">Pricing</span></a></li>
+									<li><a href="invoice.html"><span class="submenu-label">Invoice</span></a></li>
+									<li><a href="error404.html"><span class="submenu-label">Error404</span></a></li>
+									<li><a href="blank.html"><span class="submenu-label">Blank</span></a></li>
+								</ul>
+							</li-->
+							<!--li class="openable bg-palette4">
+								<a href="#">
+									<span class="menu-content block">
+										<span class="menu-icon"><i class="block fa fa-list fa-lg"></i></span>
+										<span class="text m-left-sm">Menu Level</span>
+										<span class="submenu-icon"></span>
+									</span>
+									<span class="menu-content-hover block">
+										Menu
+									</span>
+								</a>
+								<ul class="submenu">
+									<li class="openable">
+										<a href="signin.html">
+											<span class="submenu-label">menu 2.1</span>
+											<small class="badge badge-success badge-square bounceIn animation-delay2 m-left-xs pull-right">3</small>
+										</a>
+										<ul class="submenu third-level">
+											<li><a href="#"><span class="submenu-label">menu 3.1</span></a></li>
+											<li><a href="#"><span class="submenu-label">menu 3.2</span></a></li>
+											<li class="openable">
+												<a href="#">
+													<span class="submenu-label">menu 3.3</span>
+													<small class="badge badge-danger badge-square bounceIn animation-delay2 m-left-xs pull-right">2</small>
+												</a>
+												<ul class="submenu fourth-level">
+													<li><a href="#"><span class="submenu-label">menu 4.1</span></a></li>
+													<li><a href="#"><span class="submenu-label">menu 4.2</span></a></li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+									<li><a href="#"><span class="submenu-label">menu 2.2</span></a></li>
+								</ul>
+							</li-->
+						</ul>
+					</div>	
+					<!--div class="sidebar-fix-bottom clearfix">
+						<div class="user-dropdown dropup pull-left">
+							<a href="#" class="dropdwon-toggle font-18" data-toggle="dropdown"><i class="ion-person-add"></i>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="inbox.html">
+										Inbox
+										<span class="badge badge-danger bounceIn animation-delay2 pull-right">1</span>
+									</a>
+								</li>			  
+								<li>
+									<a href="#">
+										Notification
+										<span class="badge badge-purple bounceIn animation-delay3 pull-right">2</span>
+									</a>
+								</li>			  
+								<li>
+									<a href="#" class="sidebarRight-toggle">
+										Message
+										<span class="badge badge-success bounceIn animation-delay4 pull-right">7</span>
+									</a>
+								</li>			  	  
+								<li class="divider"></li>
+								<li>
+									<a href="#">Setting</a>
+								</li>			  	  
+							</ul>
+						</div>
+						<a href="lockscreen.html" class="pull-right font-18"><i class="ion-log-out"></i></a>
+					</div-->
+				</div><!-- sidebar-inner -->
+			</aside>
+		<section>
+			<div class="main-container">
+				<div class="padding-md">
+					<h3 class="header-text m-bottom-md">
+						个人中心
+						<span class="sub-header">
+							Welocome {{ request.user.nick_name }}
+						</span>
+					</h3>
+
+					<div class="row user-profile-wrapper">
+						<div class="col-md-2 user-profile-sidebar m-bottom-md">
+							<div class="row">
+								<div class="col-sm-4 col-md-12">
+									<div class="user-profile-pic">
+										<!--form class="clearfix" id="jsAvatarForm" enctype="multipart/form-data" autocomplete="off" method="post" action="{% url 'users:image_upload' %}" target='frameFile'>
+										<img img width="250" height="250" class="js-img-show" id="avatarShow" src="{{ MEDIA_URL }}{{ request.user.image }}" alt="">
+										<span class="fl upload-inp-box" ><style="margin-left:0px;">
+                                			<span class="btn btn-success btn-w100" id="jsAvatarBtn">修改头像</span>
+                                			<input type="file" name="image" id="avatarUp" class="js-img-up" >
+                                			<input type="submit" class="button btn-green btn-w200" value="上传"> <!--增加上传按钮-->
+                            			<!--/span>
+										{% csrf_token %}
+										</form-->
+										<!--div class="ribbon-wrapper">
+											<div class="ribbon-inner shadow-pulse bg-success">
+												{{ request.user.nick_name }}
+											</div>
+										</div-->
+										<!--div style="border-top:1px solid #eaeaea;margin-top:10px;"-->
+										<div>
+											<button class="btn btn-success btn-w100" id="jsUserResetPwd" style="margin:80px auto;width:100px;" type="submit">修改密码</button>
+										</div>
+									</div>
+								</div>
+								<!--div class="col-sm-6 col-md-12"-->
+									<!--div class="user-name m-top-sm">{{ request.user.first_name }}{{ request.user.last_name }}<i class=" text-success m-left-xs font-14"></i></div-->
+
+									<!--div class="m-top-sm">
+										<div>
+											<i class="fa fa-map-marker user-profile-icon"></i>
+											{{ request.user.address }}
+										</div>
+
+										<div class="m-top-xs">
+											<i class="fa fa-briefcase user-profile-icon"></i>
+											{{ request.user.email }} 
+										</div>
+
+										<div class="m-top-xs">
+											<i class="fa fa-external-link user-profile-icon"></i>
+											{{ request.user.mobile }} 
+										</div>
+									</div-->
+
+									<!--div class="m-top-sm text-centers">
+										<a class="btn btn-success"><i class="fa fa-edit m-right-xs"></i>编辑</a>
+									</div-->
+
+									<!--h4 class="m-top-md m-bottom-sm">About Me</h4-->
+									<!--p class="m-top-sm">
+										Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare dolor, quis ullamcorper ligula sodales at.
+									<p-->
+
+									<!--h4 class="m-top-md m-bottom-sm">Get Social</h4-->	
+
+									<!--a class="social-link facebook-hover"><i class="fa fa-facebook"></i></a>
+									<a class="social-link twitter-hover"><i class="fa fa-twitter"></i></a>
+									<a class="social-link pinterest-hover"><i class="fa fa-pinterest"></i></a-->
+
+								<!--/div-->
+							</div><!-- ./row -->
+						</div><!-- ./col -->
+						<div class="col-md-10">
+							<!--div class="tab-pane fade" id="profileTab2"-->
+												<h4 class="header-text m-top-md">个人信息</h4>
+												<form class="form-horizontal m-top-md">
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" name="nick_name" id="nick_name" value="{{ request.user.nick_name|default_if_none:'' }}" maxlength="10">
+
+													    </div>
+													</div>
+													<!--div class="form-group">
+													    <label class="col-sm-3 control-label">生&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" id="birth_day" name="birday" value="{{ request.user.birday|date:'Y-m-d' }}" />
+													    </div>
+													</div-->
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</label>
+													    <div class="col-sm-9">
+													      	<div class="radio inline-block">
+																<div class="custom-radio m-right-xs">
+																	<input type="radio" id="inlineRadio1" name="gender" value="male" {% ifequal request.user.gender "male" %}checked="checked"{% endifequal %}>
+																	<label for="inlineRadio1"></label>
+																</div>
+																<div class="inline-block vertical-top">男</div>
+															</div>
+															<div class="radio inline-block m-left-sm">
+																<div class="custom-radio m-right-xs">
+																	<input type="radio" id="inlineRadio2" name="gender" value="female" {% ifequal request.user.gender "female" %}checked="checked"{% endifequal %}>
+																	<label for="inlineRadio2"></label>
+																</div>
+																<div class="inline-block vertical-top">女</div>
+															</div>
+													    </div>
+													</div>
+
+													<!--div class="form-group">
+													    <label class="col-sm-3 control-label">地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;址</label>
+													    <div class="col-sm-9">
+													      	<!--textarea rows="4" class="form-control" type="text" class="form-control" name="address" id="address" placeholder="请输入你的地址" value="{{ request.user.address|default_if_none:'' }}" maxlength="50"></textarea-->
+													      	<!--input type="text" class="form-control" name="address" id="address" placeholder="请输入你的地址" value="{{ request.user.address|default_if_none:'' }}" maxlength="50">
+													    </div>
+													</div-->
+
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">手&nbsp;&nbsp;机&nbsp;&nbsp;号</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" name="mobile" id="mobile" placeholder="请输入你的手机号码" value="{{ request.user.mobile|default_if_none:'' }}" maxlength="11">
+													    </div>
+													</div>
+
+													<!--div class="form-group">
+													    <label class="col-sm-3 control-label">Email</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" value="">
+													    </div>
+													</div-->
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" name="email" readonly="readonly" value="{{ request.user.email }}">
+													      	<span class="green changeemai_btn">[修&nbsp;&nbsp;改]</span>
+													    </div>
+													</div>
+													<!--h4 class="header-text m-top-lg">Security Setting</h4-->
+
+													<!--div class="form-group">
+													    <label class="col-sm-3 control-label">Security Question</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" value="">
+													    </div>
+													</div-->
+
+													<!--div class="form-group">
+														<label class="col-sm-3 control-label">Security Browsing</label>
+													    <div class="col-sm-9">
+													    	<div class="m-top-xs">
+														      	<div class="custom-checkbox">
+																	<input type="checkbox" id="securityChk1">
+																	<label for="securityChk1"></label>
+																</div>
+																Yes
+																<div class="custom-checkbox m-left-sm">
+																	<input type="checkbox" id="securityChk2">
+																	<label for="securityChk2"></label>
+																</div>
+																No
+															</div>
+													    </div>
+													</div-->
+
+													<div class="form-group m-top-lg">
+													    <label class="col-sm-3 control-label"></label>
+													    <div class="col-sm-9">
+													      	<button type="button" class="btn btn-success" id="jsEditUserBtn" >保存</button>
+													      	<!--a class="btn btn-info m-left-xs">Cancel</a-->
+													    </div>
+													</div>
+													{% csrf_token %}								
+												</form>
+											<!--/div><!-- ./tab-pane -->
+							<!--div class="smart-widget">
+								
+								<div class="smart-widget-inner">
+									<ul class="nav nav-tabs tab-style2 tab-right bg-grey">
+								  		<li>
+								  			<a href="#profileTab3" data-toggle="tab">
+								  				<span class="icon-wrapper"><i class="fa fa-eye"></i></span>
+								  				<span class="text-wrapper">Followers</span>
+								  			</a>
+								  		</li>		
+								  		<li>
+								  			<a href="#profileTab2" data-toggle="tab">
+								  				<span class="icon-wrapper"><i class="fa fa-book"></i></span>
+								  				<span class="text-wrapper">Account</span>
+								  			</a>
+								  		</li>
+								  		<li class="active">
+								  			<a href="#profileTab1" data-toggle="tab">
+								  				<span class="icon-wrapper"><i class="fa fa-trophy"></i></span>
+								  				<span class="text-wrapper">Overview</span>
+								  			</a>
+								  		</li>
+									</ul>
+									<div class="smart-widget-body">
+										<div class="tab-content">
+											<div class="tab-pane fade in active" id="profileTab1">
+												<h4 class="header-text m-bottom-md">
+													My Skill
+													<span class="sub-header">
+														Welocome back, Jane
+													</span>
+												</h4>
+												<div class="row">
+													<div class="col-sm-3 col-sm-6s">
+														<div class="m-bottom-md">
+															<div class="text-center">HTML5</div>
+															<div class="chart profile-skill chart-skill-red center-block" data-percent="73">73%</div>
+														</div>
+													</div>
+													<div class="col-sm-3 col-sm-6s">
+														<div class="m-bottom-md">
+															<div class="text-center">CSS</div>
+															<div class="chart profile-skill chart-skill-blue center-block" data-percent="54">54%</div>
+														</div>
+													</div>
+													<div class="col-sm-3 col-sms-6">
+														<div class="m-bottom-md">
+															<div class="text-center">Jquery</div>
+															<div class="chart profile-skill chart-skill-green center-block" data-percent="89">89%</div>
+														</div>
+													</div>
+													<div class="col-sm-3 col-sm-6s">
+														<div class="m-bottom-md">
+															<div class="text-center">PHP</div>
+															<div class="chart profile-skill chart-skill-purple center-block" data-percent="92">92%</div>
+														</div>
+													</div>
+												</div><!-- ./row -->
+												
+												<!--div class="row">
+													<div class="col-lg-6">
+														<h4 class="m-top-md">Recent Activity</h4>
+
+														<div class="recent-activity-list">
+															<ul>
+																<li>
+																	<div class="activity-user-profile">
+																		<img src="images/profile/profile3.jpg" alt="">
+																	</div>
+																	<div class="activity-detail">
+																		<span class="font-semi-bold">Karen Martin</span> started following <span class="font-semi-bold">Jame Smith</span>.
+																		<small class="text-muted block">36 mins ago</small> 
+																	</div>
+																</li>
+																<li>
+																	<div class="activity-user-profile">
+																		<img src="images/profile/profile3.jpg" alt="">
+																	</div>
+																	<div class="activity-detail">
+																		<span class="font-semi-bold">Karen Martin</span> just added <span class="font-semi-bold">Simplify Admin</span> to dashboard.
+																		<small class="text-muted block">3 hrs ago </small> 
+																	</div>
+																</li>
+																<li>
+																	<div class="activity-user-profile">
+																		<img src="images/profile/profile5.jpg" alt="">
+																	</div>
+																	<div class="activity-detail">
+																		<span class="font-semi-bold">Sarah Garcia</span> added new photo
+																		<small class="text-muted block">Yesterday</small> 
+
+																		<div class="m-top-sm">
+																			<img src="images/img11.jpg" alt="">
+																		</div>
+																	</div>
+																</li>
+																<li>
+																	<div class="activity-user-profile">
+																		<img src="images/profile/profile4.jpg" alt="">
+																	</div>
+																	<div class="activity-detail">
+																		<span class="font-semi-bold">Jame Smith</span> started following <span class="font-semi-bold">Karen Martin</span>.
+																		<small class="text-muted block">36 mins ago</small> 
+																	</div>
+																</li>
+																<li>
+																	<div class="activity-user-profile">
+																		<img src="images/profile/profile6.jpg" alt="">
+																	</div>
+																	<div class="activity-detail">
+																		<span class="font-semi-bold">Chistopher Brown</span> just purchased <span class="font-semi-bold">your item</span>.
+																		<small class="text-muted block">36 mins ago</small> 
+																	</div>
+																</li>
+																<li>
+																	<div class="activity-user-profile">
+																		<img src="images/profile/profile7.jpg" alt="">
+																	</div>
+																	<div class="activity-detail">
+																		<span class="font-semi-bold">Elizabeth Carter</span> uploaded <a class="font-semi-bold">3 photos</a>.
+																		<small class="text-muted block">36 mins ago</small> 
+
+																		<ul class="uploaded-photo-list m-top-sm clearfix">
+																			<li><a href="#"><img src="images/gallery/gallery4.jpg" alt=""></a></li>
+																			<li><a href="#"><img src="images/gallery/gallery5.jpg" alt=""></a></li>
+																			<li><a href="#"><img src="images/gallery/gallery6.jpg" alt=""></a></li>
+																		</ul><!-- ./upload-photo-list -->
+																	<!--/div>
+																</li>
+															</ul>
+														</div><!-- ./.recent-activity-list -->
+													<!--/div><!-- ./col -->
+													<!--div class="col-lg-6">
+														<h4 class="m-top-md">User Statistic</h4>
+
+														<div class="row m-top-md">
+															<div class="col-sm-6">
+																<div class="widget-stat3 bg-primary">
+																	<div class="widget-stat-icon">
+																		<i class="fa fa-facebook fa-3x"></i>
+																	</div>
+																	<small class="text-upper">Like</small>
+																	<h3 class="no-margin">5123</h3>
+																</div>
+															</div><!-- ./col -->
+															<!--div class="col-sm-6">
+																<div class="widget-stat3 bg-info">
+																	<div class="widget-stat-icon">
+																		<i class="fa fa-twitter fa-3x"></i>
+																	</div>
+																	<small class="text-upper">Follower</small>
+																	<h3 class="no-margin">981</h3>
+																</div>	
+															</div><!-- ./col -->
+														<!--/div>
+
+														<div class="row">
+															<div class="col-sm-6">
+																<div class="widget-stat3 text-white" style="background-color:#ea4c89;">
+																	<div class="widget-stat-icon">
+																		<i class="fa fa-dribbble fa-3x"></i>
+																	</div>
+																	<small class="text-upper">Follower</small>
+																	<h3 class="no-margin">1903</h3>
+																</div>
+															</div><!-- ./col -->
+															<!--div class="col-sm-6">
+																<div class="widget-stat3 bg-success">
+																	<div class="widget-stat-icon">
+																		<i class="fa fa-eye fa-3x"></i>
+																	</div>
+																	<small class="text-upper">Visit</small>
+																	<h3 class="no-margin">2176</h3>
+																</div>	
+															</div><!-- ./col -->
+														<!--/div><!-- ./row -->
+
+														<!--div class="panel panel-default m-top-md">
+															<div class="panel-heading">
+																<i class="fa fa-twitter"></i> Latest Tweets
+															</div>
+															<ul class="list-group"> 
+																<li class="list-group-item"> 
+																	<p>Welcome <a href="#" class="text-info">@John Doe</a> Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p> 
+																	<small class="block text-muted">
+																		<i class="fa fa-clock-o"></i> 6 minutes ago
+																	</small>
+																</li> 
+																<li class="list-group-item"> 
+																	<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <a href="#" class="text-info">@Jand Doe</a></p> 
+																	<small class="block text-muted">
+																		<i class="fa fa-clock-o"></i> 41 minutes ago
+																	</small> 
+																</li> 
+																<li class="list-group-item"> <p><a href="#" class="text-info">@Bill Doe</a> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eros nibh, viverra a dui a, gravida varius velit.</p> 
+																	<small class="block text-muted">
+																		<i class="fa fa-clock-o"></i> 1 hour ago
+																	</small> 
+																</li> 
+															</ul><!-- /list-group -->
+														<!--/div><!-- ./panel -->
+													<!--/div><!-- ./col -->
+												<!--/div><!-- ./row -->
+											<!--/div><!-- ./tab-pane -->
+											<!--div class="tab-pane fade" id="profileTab2">
+												<h4 class="header-text m-top-md">General Information</h4>
+												<form class="form-horizontal m-top-md">
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">Name</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" value="Jane Doe">
+													    </div>
+													</div>
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">Surname</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control">
+													    </div>
+													</div>
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">Gender</label>
+													    <div class="col-sm-9">
+													      	<div class="radio inline-block">
+																<div class="custom-radio m-right-xs">
+																	<input type="radio" id="inlineRadio1" name="profileGender">
+																	<label for="inlineRadio1"></label>
+																</div>
+																<div class="inline-block vertical-top">Male</div>
+															</div>
+															<div class="radio inline-block m-left-sm">
+																<div class="custom-radio m-right-xs">
+																	<input type="radio" id="inlineRadio2" name="profileGender">
+																	<label for="inlineRadio2"></label>
+																</div>
+																<div class="inline-block vertical-top">Female</div>
+															</div>
+													    </div>
+													</div>
+
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">Address</label>
+													    <div class="col-sm-9">
+													      	<textarea rows="4" class="form-control"></textarea>
+													    </div>
+													</div>
+
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">Phone</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" value="">
+													    </div>
+													</div>
+
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">Website</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" value="">
+													    </div>
+													</div>
+
+													<h4 class="header-text m-top-lg">Security Setting</h4>
+
+													<div class="form-group">
+													    <label class="col-sm-3 control-label">Security Question</label>
+													    <div class="col-sm-9">
+													      	<input type="text" class="form-control" value="">
+													    </div>
+													</div>
+
+													<div class="form-group">
+														<label class="col-sm-3 control-label">Security Browsing</label>
+													    <div class="col-sm-9">
+													    	<div class="m-top-xs">
+														      	<div class="custom-checkbox">
+																	<input type="checkbox" id="securityChk1">
+																	<label for="securityChk1"></label>
+																</div>
+																Yes
+																<div class="custom-checkbox m-left-sm">
+																	<input type="checkbox" id="securityChk2">
+																	<label for="securityChk2"></label>
+																</div>
+																No
+															</div>
+													    </div>
+													</div>
+
+													<div class="form-group m-top-lg">
+													    <label class="col-sm-3 control-label"></label>
+													    <div class="col-sm-9">
+													      	<a class="btn btn-default">Submit</a>
+													      	<a class="btn btn-info m-left-xs">Cancel</a>
+													    </div>
+													</div>								
+												</form>
+											</div><!-- ./tab-pane -->
+											<!--div class="tab-pane fade" id="profileTab3">
+												<div class="profile-follower-list clearfix">
+													<ul>
+														<li>
+															<div class="panel panel-default clearfix">
+																<div class="panel-body">
+																	<div class="user-wrapper">
+																		<div class="user-avatar">
+																			<img class="small-img img-circle img-thumbnail" src="images/profile/profile2.jpg" alt="">
+																		</div>
+																		<div class="user-detail small-img">
+																			<div class="font-16">Karen Martin</div>
+																			<small class="block text-muted font-12">Web Designer</small>
+																			<small>
+																				<small class="freelancer-rating">
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																				</small>
+																			</small>
+
+																			<div class="m-top-sm">
+																				<button type="button" class="btn btn-default btn-sm marginTB-xs" disabled="" data-toggle="modal">following</button>
+																				<button type="button" class="btn btn-success btn-sm marginTB-xs" data-toggle="modal">View Profile</button>
+																			</div>
+																		</div>
+																	</div><!-- ./user-wrapper -->
+																<!--/div>
+															</div>
+														</li>
+
+														<li>
+															<div class="panel panel-default clearfix">
+																<div class="panel-body">
+																	<div class="user-wrapper">
+																		<div class="user-avatar">
+																			<img class="small-img img-circle img-thumbnail" src="images/profile/profile3.jpg" alt="">
+																		</div>
+																		<div class="user-detail small-img">
+																			<div class="font-16">Sarah Garcia</div>
+																			<small class="block text-muted font-12">Content Writing</small>
+																			<small>
+																				<small class="freelancer-rating">
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																				</small>
+																			</small>
+
+																			<div class="m-top-sm">
+																				<button type="button" class="btn btn-default btn-sm marginTB-xs" disabled="" data-toggle="modal">following</button>
+																				<button type="button" class="btn btn-success btn-sm marginTB-xs" data-toggle="modal">View Profile</button>
+																			</div>
+																		</div>
+																	</div><!-- ./user-wrapper -->
+																<!--/div>
+															</div>
+														</li>
+
+														<li>
+															<div class="panel panel-default clearfix">
+																<div class="panel-body">
+																	<div class="user-wrapper">
+																		<div class="user-avatar">
+																			<img class="small-img img-circle img-thumbnail" src="images/profile/profile4.jpg" alt="">
+																		</div>
+																		<div class="user-detail small-img">
+																			<div class="font-16">Jame Smith</div>
+																			<small class="block text-muted font-12">Programmer</small>
+																			<small>
+																				<small class="freelancer-rating">
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																				</small>
+																			</small>
+
+																			<div class="m-top-sm">
+																				<button type="button" class="btn btn-primary btn-sm marginTB-xs" data-toggle="modal">follow</button>
+																				<button type="button" class="btn btn-success btn-sm marginTB-xs" data-toggle="modal">View Profile</button>
+																			</div>
+																		</div>
+																	</div><!-- ./user-wrapper -->
+																<!--/div>
+															</div>
+														</li>
+
+														<li>
+															<div class="panel panel-default clearfix">
+																<div class="panel-body">
+																	<div class="user-wrapper">
+																		<div class="user-avatar">
+																			<img class="small-img img-circle img-thumbnail" src="images/profile/profile5.jpg" alt="">
+																		</div>
+																		<div class="user-detail small-img">
+																			<div class="font-16">Elizabeth Carter</div>
+																			<small class="block text-muted font-12">@Elizabeth</small>
+																			<small>
+																				<small class="freelancer-rating">
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																				</small>
+																			</small>
+
+																			<div class="m-top-sm">
+																				<button type="button" class="btn btn-primary btn-sm marginTB-xs" data-toggle="modal">follow</button>
+																				<button type="button" class="btn btn-success btn-sm marginTB-xs" data-toggle="modal">View Profile</button>
+																			</div>
+																		</div>
+																	</div><!-- ./user-wrapper -->
+																<!--/div>
+															</div>
+														</li>
+
+														<li>
+															<div class="panel panel-default clearfix">
+																<div class="panel-body">
+																	<div class="user-wrapper">
+																		<div class="user-avatar">
+																			<img class="small-img img-circle img-thumbnail" src="images/profile/profile6.jpg" alt="">
+																		</div>
+																		<div class="user-detail small-img">
+																			<div class="font-16">Christopher Brown</div>
+																			<small class="block text-muted font-12">@Christopher</small>
+																			<small>
+																				<small class="freelancer-rating">
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																				</small>
+																			</small>
+
+																			<div class="m-top-sm">
+																				<button type="button" class="btn btn-primary btn-sm marginTB-xs" data-toggle="modal">follow</button>
+																				<button type="button" class="btn btn-success btn-sm marginTB-xs" data-toggle="modal">View Profile</button>
+																			</div>
+																		</div>
+																	</div><!-- ./user-wrapper -->
+																<!--/div>
+															</div>
+														</li>
+
+														<li>
+															<div class="panel panel-default clearfix">
+																<div class="panel-body">
+																	<div class="user-wrapper">
+																		<div class="user-avatar">
+																			<img class="small-img img-circle img-thumbnail" src="images/profile/profile7.jpg" alt="">
+																		</div>
+																		<div class="user-detail small-img">
+																			<div class="font-16">Jane Doe</div>
+																			<small class="block text-muted font-12">janeDoe@company.com</small>
+																			<small>
+																				<small class="freelancer-rating">
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																					<i class="fa fa-star text-warning"></i>
+																				</small>
+																			</small>
+
+																			<div class="m-top-sm">
+																				<button type="button" class="btn btn-primary btn-sm marginTB-xs" data-toggle="modal">follow</button>
+																				<button type="button" class="btn btn-success btn-sm marginTB-xs" data-toggle="modal">View Profile</button>
+																			</div>
+																		</div>
+																	</div><!-- ./user-wrapper -->
+																<!--/div>
+															</div>
+														</li>
+													</ul>
+												</div><!-- ./profile-follower-list -->
+											<!--/div><!-- ./tab-pane -->
+										<!--/div><!-- ./tab-content -->
+									<!--/div><!-- ./smart-widget-body -->
+								<!--/div><!-- ./smart-widget-inner -->
+							<!--/div><!-- ./smart-widget -->
+						</div>
+					</div>
+				</div><!-- ./padding-md -->
+			</div><!-- /main-container -->
+		</section>
+
+
+		
+<div class="dialog" id="jsDialog">
+    <!--div class="successbox dialogbox" id="jsSuccessTips">
+        <h1>成功提交</h1>
+        <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+        <div class="cont">
+            <h2>您的需求提交成功！</h2>
+            <p></p>
+        </div>
+    </div-->
+    <!--提示弹出框-->
+    <div class="bidtips dialogbox promptbox" id="jsComfirmDialig">
+        <h1>确认提交</h1>
+        <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+        <div class="cont">
+            <h2>您确认提交吗？</h2>
+            <dd class="autoTxtCount">
+                <div class="button">
+                    <input type="button" class="fl half-btn" value="确定" id="jsComfirmBtn"/>
+                    <span class="fr half-btn jsCloseDialog">取消</span>
+                </div>
+            </dd>
+        </div>
+    </div>
+    <div class="resetpwdbox dialogbox" id="jsResetDialog">
+        <h1>修改密码</h1>
+        <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+        <div class="cont">
+            <form id="jsResetPwdForm" autocomplete="off">
+                <div class="box">
+                    <span class="word2" >新&nbsp;&nbsp;密&nbsp;&nbsp;码</span>
+                    <input type="password" id="pwd" name="password1" placeholder="6-20位非中文字符"/>
+                </div>
+                <div class="box">
+                    <span class="word2" >确定密码</span>
+                    <input type="password" id="repwd" name="password2" placeholder="6-20位非中文字符"/>
+                </div>
+                <div class="error btns" id="jsResetPwdTips"></div>
+                <div class="button">
+                    <input id="jsResetPwdBtn" type="button" value="提交" />
+                </div>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+    <div class="dialogbox changeemai1 changephone" id="jsChangeEmailDialog">
+        <h1>修改邮箱</h1>
+        <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+        <p>请输入新的邮箱地址</p>
+        <form id="jsChangeEmailForm" autocomplete="off">
+            <div class="box">
+                <input class="fl change_email" name="email" id="jsChangeEmail" type="text" placeholder="输入重新绑定的邮箱地址">
+            </div>
+            <div class="box">
+                <input class="fl email_code" type="text" id="jsChangeEmailCode" name="code" placeholder="输入邮箱验证码">
+                <input class="getcode getting" type="button" id="jsChangeEmailCodeBtn" value="获取验证码">
+            </div>
+            <div class="error btns change_email_tips" id="jsChangeEmailTips" >请输入...</div>
+            <div class="button">
+                <input class="changeemai_btn" id="jsChangeEmailBtn" type="button" value="完成"/>
+            </div>
+            {% csrf_token %}
+        </form>
+    </div>
+
+    <div  class="noactivebox dialogbox" id="jsUnactiveForm" >
+        <h1>邮件验证提示</h1>
+        <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+        <div class="center">
+            <img src="{% static 'images/send.png' %}"/>
+            <p>我们已经向您的邮箱<span class="green" id="jsEmailToActive">12@13.com</span>发送了邮件，<br/>为保证您的账号安全，请及时验证邮箱</p>
+            <p class="a"><a class="btn" id="jsGoToEmail" target="_blank" href="http://mail.qq.com">去邮箱验证</a></p>
+            <p class="zy_success upmove"></p>
+            <p style="display: none;" class="sendE2">没收到，您可以查看您的垃圾邮件和被过滤邮件，也可以再次发送验证邮件（<span class="c5c">60s</span>）</p>
+            <p class="sendE">没收到，您可以查看您的垃圾邮件和被过滤邮件，<br/>也可以<span class="c5c green" id="jsSenEmailAgin" style="cursor: pointer;">再次发送验证邮件</span></p>
+        </div>
+    </div>
+    <div class="resetpassbox dialogbox" id="jsSetNewPwd">
+        <h1>重新设置密码</h1>
+        <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+        <p class="green">请输入新密码</p>
+        <form id="jsSetNewPwdForm">
+            <div class="box">
+                <span class="word2">密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</span>
+                <input type="password" name="password" id="jsResetPwd" placeholder="请输入新密码"/>
+            </div>
+            <div class="box">
+                <span class="word2">确&nbsp;认&nbsp;密&nbsp;码</span>
+                <input type="password" name="password2" id="jsResetPwd2" placeholder="请再次输入新密码"/>
+            </div>
+            <div class="box">
+                <span class="word2">验&nbsp;&nbsp;证&nbsp;&nbsp;码</span>
+                <input type="text" name="code" id="jsResetCode" placeholder="请输入手机验证码"/>
+            </div>
+            <div class="error btns" id="jsSetNewPwdTips"></div>
+            <div class="button">
+                <input type="hidden" name="mobile" id="jsInpResetMobil" />
+                <input id="jsSetNewPwdBtn" type="button" value="提交" />
+            </div>
+           {% csrf_token %}
+        </form>
+    </div>
+    <!--div class="forgetbox dialogbox">
+        <h1>忘记密码</h1>
+        <div class="close jsCloseDialog"><img src="{% static 'images/dig_close.png' %}"/></div>
+        <div class="cont">
+            <form id="jsFindPwdForm" autocomplete="off">
+                <input type='hidden' name='csrfmiddlewaretoken' value='DaP7IUKm9FA9nELA9YUlYYWpyIDdCiIP' />
+                <div class="box">
+                    <span class="word2" >账&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</span>
+                    <input type="text" id="account" name="account" placeholder="手机/邮箱"/>
+                </div>
+                <div class="box">
+                    <span class="word3">验证码</span>
+                    <input autocomplete="off" class="form-control-captcha find-password-captcha" id="find-password-captcha_1" name="captcha_f_1" placeholder="请输入验证码" type="text" /> <input class="form-control-captcha find-password-captcha" id="find-password-captcha_0" name="captcha_f_0" placeholder="请输入验证码" type="hidden" value="5f3c00e47fb1be12d2fd15b9a860711597721b3f" /> &nbsp;<img src="/captcha/image/5f3c00e47fb1be12d2fd15b9a860711597721b3f/" alt="captcha" class="captcha" />
+                </div>
+                <div class="error btns" id="jsForgetTips"></div><!--忘记密码错误-->
+                <!--div class="button">
+                    <input type="hidden" name="sms_type" value="1">
+                    <input id="jsFindPwdBtn" type="button" value="提交" />
+                </div>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div-->
+</div>
+<div class="bg" id="dialogBg"></div>
+{% endblock %}
+
+		{% block footer %}{% endblock %}
+		{% block custom2_js %}
+	
+<script src="{% static 'js/jquery.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/jquery-migrate-1.2.1.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/selectUi.js' %}" type='text/javascript'></script>
+<script type="text/javascript" src="{% static 'js/plugins/laydate/laydate.js' %}"></script>
+<script src="{% static 'js/plugins/layer/layer.js' %}"></script>
+<script src="{% static 'js/plugins/queryCity/js/public.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/unslider.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/plugins/jquery.scrollLoading.js' %}"  type="text/javascript"></script>
+<script src="{% static 'js/validateDialog.js' %}"  type="text/javascript"></script>
+<script src="{% static 'js/deco-common.js' %}"  type="text/javascript"></script>
+
+<script src="{% static 'js/plugins/jquery.upload.js' %}" type='text/javascript'></script>
+<script src="{% static 'js/validate.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/deco-user.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/login.js'%} "  type="text/javascript"></script>
+
+<script type="text/javascript">
+    $('.jsDeleteFav_course').on('click', function(){
+        var _this = $(this),
+            favid = _this.attr('data-favid');
+        alert(favid)
+        $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/org/add_fav/",
+                data: {
+                    fav_type: 1,
+                    fav_id: favid,
+                    csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                },
+                async: true,
+                success: function(data) {
+                    Dml.fun.winReload();
+                }
+            });
+    });
+
+    $('.jsDeleteFav_teacher').on('click', function(){
+            var _this = $(this),
+                favid = _this.attr('data-favid');
+            $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "/org/add_fav/",
+                    data: {
+                        fav_type: 3,
+                        fav_id: favid,
+                        csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                    },
+                    async: true,
+                    success: function(data) {
+                        Dml.fun.winReload();
+                    }
+                });
+        });
+
+
+    $('.jsDeleteFav_org').on('click', function(){
+            var _this = $(this),
+                favid = _this.attr('data-favid');
+            $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "/org/add_fav/",
+                    data: {
+                        fav_type: 2,
+                        fav_id: favid,
+                        csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                    },
+                    async: true,
+                    success: function(data) {
+                        Dml.fun.winReload();
+                    }
+                });
+        });
+</script>
+
+
+<script>
+        var shareUrl = '',
+            shareText = '',
+            shareDesc = '',
+            shareComment = '';
+        $(function () {
+            $(".bdsharebuttonbox a").mouseover(function () {
+                var type = $(this).attr('data-cmd'),
+                    $parent = $(this).parent('.bdsharebuttonbox'),
+                    fxurl = $parent.attr('data-url'),
+                    fxtext = $parent.attr('data-text'),
+                    fxdesc = $parent.attr('data-desc'),
+                    fxcomment = $parent.attr('data-comment');
+                switch (type){
+                    case 'tsina':
+                    case 'tqq':
+                    case 'renren':
+                            shareUrl = fxurl;
+                            shareText = fxdesc;
+                            shareDesc = '';
+                            shareComment = '';
+                        break;
+                    default :
+                            shareUrl = fxurl;
+                            shareText = fxtext;
+                            shareDesc = fxdesc;
+                            shareComment = fxcomment;
+                        break;
+                }
+            });
+        });
+        function SetShareUrl(cmd, config) {
+            if (shareUrl) {
+                config.bdUrl = "" + shareUrl;
+            }
+            if(shareText){
+                config.bdText = shareText;
+            }
+            if(shareDesc){
+                config.bdDesc = shareDesc;
+            }
+            if(shareComment){
+                config.bdComment = shareComment;
+            }
+
+            return config;
+        }
+        window._bd_share_config = {
+            "common": {
+                "onBeforeClick":SetShareUrl,
+                "bdPic":"",
+                "bdMini":"2",
+                "searchPic":"1",
+                "bdMiniList":false
+            },
+            "share": {
+                "bdSize":"16"
+            }
+        };
+    with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com../api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+
+</script>
+
+
+
+<script>			
+			$(function()	{
+				$('.chart-skill-red').easyPieChart({
+			        barColor: '#fc8675',
+			        lineWidth: '5'
+			    });
+
+			    $('.chart-skill-blue').easyPieChart({
+			        barColor: '#65C3DF',
+			        lineWidth: '5'
+			    });
+
+			    $('.chart-skill-green').easyPieChart({
+			        barColor: '#1dc499',
+			        lineWidth: '5'
+			    });
+
+			    $('.chart-skill-purple').easyPieChart({
+			        barColor: '#a48ad4',
+			        lineWidth: '5'
+			    });
+			});
+		</script>
+		{% endblock %}
+
+

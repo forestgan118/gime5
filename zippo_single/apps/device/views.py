@@ -1437,7 +1437,7 @@ def mac_data():
     yesterday = (date.today() + timedelta(days = -1)).strftime("%Y-%m-%d").split('-')
     year=2019#int(yesterday[0])
     month=4#int(yesterday[1])
-    day=4#int(yesterday[2])
+    day=7#int(yesterday[2])
     
     
     mid=[]
